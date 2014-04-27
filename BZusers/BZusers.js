@@ -19,14 +19,15 @@ var plugin = {};
 
 
 			if(online >= 1){
-				var count = 0;
+				var count = 1;
 				var playerData = "{";
 				for (var x in players){
-					count++;
+					
 					playerData += '"' + count + '":"' + x.SteamID+ '"';
 					if(count != online){
 						playerData += ',';
 					}	
+					count++;
 				}
 				playerData += "}";
 
@@ -37,6 +38,18 @@ var plugin = {};
 				
 			var response = {};
 			response = sendData(data);
+
+			var admin_console_debug = DataStore.Get("BZ0core", "admin_console_debug");
+
+			if(admin_console_debug == 1){
+
+				if(response.status == "error"){
+					Util.ConsoleLog("message: " + response.reason, true);
+				} else {
+					Util.ConsoleLog("message: " + response.message, true);
+				}
+
+			}
 				
 		} catch (err) {
 			handleError("playersonlineCallback", err);
@@ -152,7 +165,7 @@ var plugin = {};
 			DataStore.Add(Player.SteamID, "BZName", Player.Name);
 			DataStore.Save();
 		} catch(err) {
-			handleError("On_PlayerConnected", err);
+			handleError("On_PlayerConnected users save name to datastore", err);
 		}
 
 		// log connection status to website:
@@ -172,7 +185,6 @@ var plugin = {};
 	function On_PlayerDisconnected(Player){	
 		// log Disconnect to website
 		if(confSetting("send_online_to_web") == 1){
-			locator(Player);
 
 			var data = {};
 			data['action'] = "disconnect";

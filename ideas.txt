@@ -76,3 +76,28 @@ betting system for dueals and battles and such.
 --
 
 admin plugin to change name and/or change another players name?
+
+----
+
+plugins add help text to datastore when loaded so the help text is dynamic
+
+---
+
+add indivisual help text where appropriate
+
+--- 
+
+make sure all the admin functions are limited to admin
+
+---
+
+add server ip to post checking... to make sure no one can fudge posts.
+
+---
+
+maybe make a new token on server init and use that for updates rather than the 
+
+---
+
+godmode stuff. change name to "Admin GODmode" or something when active...
+also send popup to admin and attacked if he is hit with godmode on so there are no mistakes.

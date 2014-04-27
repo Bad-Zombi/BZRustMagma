@@ -95,13 +95,20 @@ var plugin = {};
 			 var key = x;
 			 var value = data[x];
 			 chunk = chunk + "&" + key + "=" + value;
+			 if(admin_console_debug == 1){
+			 	Util.ConsoleLog(key + ": " + value, true);
+			 }
 		}
+
+		if(admin_console_debug == 1){
+		 	Util.ConsoleLog("chunk: " + chunk, true);
+		 }
 
 		if(method == true){
 			var url= server + "/" + serverScript + "?serverID=" + serverID + "&pass=" + serverPass + chunk;
 			var request = Web.GET(url);
 			if(admin_console_debug == 1){
-				Util.ConsoleLog("sendData: " + url, true);
+				//Util.ConsoleLog("sendData: " + debug, true);
 			}
 		} else {
 			// default method it POST
@@ -109,13 +116,13 @@ var plugin = {};
 			var chunk = "serverID=" + serverID + "&pass=" + serverPass + chunk;
 			var request = Web.POST(url, chunk);
 			if(admin_console_debug == 1){
-				Util.ConsoleLog("sendUrl: " + url, true);
-				Util.ConsoleLog("sendData: " + chunk, true);
+				//Util.ConsoleLog("sendUrl: " + url, true);
+				//Util.ConsoleLog("sendData: " + debug, true);
 			}
 		}
 
 		if(confSetting("admin_console_debug") == 1){
-			Util.ConsoleLog("sendData response: " + request, true);
+			Util.ConsoleLog("sendData response: " + request.ToString(), true);
 		}
 		return eval("(function(){return " + request + ";})()");
 	}

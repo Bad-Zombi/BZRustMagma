@@ -5,26 +5,35 @@ var plugin = {};
 	plugin.author = "BadZombi";
 	plugin.version = "0.3";
 
+
 // support functions:
 
 	function playerLocationsCallback () {
 		try{
+
+			//Util.ConsoleLog("Starting player locations poll: -------------------------------------------------- ", true);
+
 			var players = Server.Players;
 			var online = players.Count;
-
+			//Util.ConsoleLog("online count: " + online, true);
 			if(online >= 1){
-				
+
 				var playerData = "{";
 				var count = 0;
+
 				for (var x in players){
-
+					//Util.ConsoleLog("processing player: " + x.Name, true);
 					var location = loc2web(x);
-
+					//Util.ConsoleLog("location: " + location, true);
 					var lastLoc = DataStore.Get(x.SteamID, "BZloc");
 					if(lastLoc != undefined && location == lastLoc){
 						// do nothing... player has not moved
+						//Util.ConsoleLog("player has not moved", true);
+						online = online - 1;
 					} else {
+						//Util.ConsoleLog("player has moved! adding to array...", true);
 						count++;
+
 						DataStore.Add(x.SteamID, "BZloc", location);
 						playerData += '"' + x.SteamID+ '": "' + location + '"';
 						if(count != online){
@@ -43,15 +52,29 @@ var plugin = {};
 					data['playerData'] = playerData;
 					var response = {};
 					response = sendData(data);
-				} 
-				
 
-				
-			} 
+					var admin_console_debug = DataStore.Get("BZ0core", "admin_console_debug");
+
+					if(admin_console_debug == 1){
+
+						if(response.status == "error"){
+							Util.ConsoleLog("message: " + response.reason, true);
+						} else if(response.status == "success"){
+							Util.ConsoleLog("message: " + response.message, true);
+						} else {
+							Util.ConsoleLog("error: strange things happened in playerLocationsCallback", true);
+						}
+
+					}
+
+				} 
+
+			}  else {
+				//Util.ConsoleLog("No players online... doing nothing... -------------------------------------------------- ", true);
+			}
 
 		} catch (err) {
-	        Plugin.Log("Error_log", "Error Message: " + err.message + " in playerLocationsCallback");
-	        Plugin.Log("Error_log", "Error Description: " + err.description + " in playerLocationsCallback")
+			handleError("playerLocationsCallback", err);
 	    }
 	}
 
