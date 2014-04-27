@@ -1,4 +1,5 @@
-// Recover arrows from animals and players in a non "magical" way. You gave to retrieve them from the corpse rather then having them just return to you.
+// Recover arrows from animals and players in a non magical way. 
+// You have to retrieve them from the corpse rather then having them just return to you.
 
 var plugin = {};
     plugin.name = "BZarrows";
