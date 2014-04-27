@@ -76,10 +76,27 @@ function bzCoreCheck(){
 }
 
 function On_PluginInit() { 
+
+	if ( !Plugin.IniExists( getFilename() ) ) {
+
+        var Config = {};
+	        Config['global_chat_name'] = "Rustard";
+
+        var iniData = {};
+        	iniData["Config"] = Config;
+
+        var conf = createConfig(iniData);
+
+    } 
+
+    Server.server_message_name = confSetting("global_chat_name") ;    
+
     Util.ConsoleLog(plugin.name + " loaded.", true);
 }
 
-
+function On_ServerInit() { 
+	// meh
+}
 
 // Some things I have yet to rewrite for this:
 /*
