@@ -82,6 +82,7 @@ var plugin = {};
 	    var serverID = DataStore.Get("BZ0core", "serverID");
 	    var serverPass = DataStore.Get("BZ0core", "serverPass");
 	    var serverScript = DataStore.Get("BZ0core", "serverScript");
+	    var admin_console_debug = DataStore.Get("BZ0core", "admin_console_debug");
 
 	    if(serverID == 0){
 	    	Util.ConsoleLog("RemoteHost config is still set to default. Not sending.", true);
@@ -99,7 +100,7 @@ var plugin = {};
 		if(method == true){
 			var url= server + "/" + serverScript + "?serverID=" + serverID + "&pass=" + serverPass + chunk;
 			var request = Web.GET(url);
-			if(confSetting("admin_colsole_debug") == 1){
+			if(admin_console_debug == 1){
 				Util.ConsoleLog("sendData: " + url, true);
 			}
 		} else {
@@ -107,12 +108,13 @@ var plugin = {};
 			var url= server + "/" + serverScript;
 			var chunk = "serverID=" + serverID + "&pass=" + serverPass + chunk;
 			var request = Web.POST(url, chunk);
-			if(confSetting("admin_colsole_debug") == 1){
-				Util.ConsoleLog("sendData: " + url + "[" + chunk + "]", true);
+			if(admin_console_debug == 1){
+				Util.ConsoleLog("sendUrl: " + url, true);
+				Util.ConsoleLog("sendData: " + chunk, true);
 			}
 		}
 
-		if(confSetting("admin_colsole_debug") == 1){
+		if(confSetting("admin_console_debug") == 1){
 			Util.ConsoleLog("sendData response: " + request, true);
 		}
 		return eval("(function(){return " + request + ";})()");
@@ -131,7 +133,7 @@ var plugin = {};
 
 	        var Config = {};
 		        Config['global_chat_name'] = "Rustard";
-		        Config['admin_colsole_debug'] = 0;
+		        Config['admin_console_debug'] = 0;
 
 	        var RemoteHost = {};
 		        RemoteHost['server'] = "notset";
@@ -152,6 +154,7 @@ var plugin = {};
 	    DataStore.Add("BZ0core", "serverID", confSetting("serverID", "RemoteHost"));
 	    DataStore.Add("BZ0core", "serverPass", confSetting("serverPass", "RemoteHost"));
 	    DataStore.Add("BZ0core", "serverScript", confSetting("serverScript", "RemoteHost"));
+	    DataStore.Add("BZ0core", "admin_console_debug", confSetting("admin_console_debug"));
 
 	    Server.server_message_name = confSetting("global_chat_name");    
 
