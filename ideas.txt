@@ -73,3 +73,6 @@ open all doors when a user is banned?
 
 betting system for dueals and battles and such.
 
+--
+
+admin plugin to change name and/or change another players name?

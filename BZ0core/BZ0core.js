@@ -66,14 +66,56 @@ function handleError(funcName, err){
     Plugin.Log("Error_log", "-------------------------------------------------------------------------");
 }
 
-function confSetting(name) {
+function confSetting(name, section) {
+	if(section == undefined){
+		section = "Config";
+	}
 	var conf = loadConfig();
-	return conf.GetSetting("Config", name);
+	return conf.GetSetting(section, name);
+}
+
+function sendData (data, method) {
+	
+    var server = DataStore.Get("BZ0core", "server");
+    var serverID = DataStore.Get("BZ0core", "serverID");
+    var serverPass = DataStore.Get("BZ0core", "serverPass");
+    var serverScript = DataStore.Get("BZ0core", "serverScript");
+
+    var chunk = "";
+    
+    for (var x in data) {
+		 var key = x;
+		 var value = data[x];
+		 chunk = chunk + "&" + key + "=" + value;
+	}
+
+	if(method == true){
+		var url= server + "/" + serverScript + "?serverID=" + serverID + "&pass=" + serverPass + chunk;
+		var request = Web.GET(url);
+		if(confSetting("admin_colsole_debug") == 1){
+			Util.ConsoleLog("sendData: " + url, true);
+		}
+	} else {
+		// default method it POST
+		var url= server + "/" + serverScript;
+		var chunk = "serverID=" + serverID + "&pass=" + serverPass + chunk;
+		var request = Web.POST(url, chunk);
+		if(confSetting("admin_colsole_debug") == 1){
+			Util.ConsoleLog("sendData: " + url + "[" + chunk + "]", true);
+		}
+	}
+
+	if(confSetting("admin_colsole_debug") == 1){
+		Util.ConsoleLog("sendData response: " + request, true);
+	}
+	return eval("(function(){return " + request + ";})()");
 }
 
 function bzCoreCheck(){
 	return 'loaded';
 }
+
+
 
 function On_PluginInit() { 
 
@@ -81,17 +123,32 @@ function On_PluginInit() {
 
         var Config = {};
 	        Config['global_chat_name'] = "Rustard";
+	        Config['admin_colsole_debug'] = 0;
+
+        var RemoteHost = {};
+	        RemoteHost['server'] = "http://rustard.com";
+			RemoteHost['serverID'] = 0;
+			RemoteHost['serverPass'] = "";
+			RemoteHost['serverScript'] = "logger";
 
         var iniData = {};
         	iniData["Config"] = Config;
+        	iniData["RemoteHost"] = RemoteHost;
+
 
         var conf = createConfig(iniData);
 
     } 
 
-    Server.server_message_name = confSetting("global_chat_name") ;    
+    DataStore.Add("BZ0core", "server", confSetting("server", "RemoteHost"));
+    DataStore.Add("BZ0core", "serverID", confSetting("serverID", "RemoteHost"));
+    DataStore.Add("BZ0core", "serverPass", confSetting("serverPass", "RemoteHost"));
+    DataStore.Add("BZ0core", "serverScript", confSetting("serverScript", "RemoteHost"));
+
+    Server.server_message_name = confSetting("global_chat_name");    
 
     Util.ConsoleLog(plugin.name + " loaded.", true);
+    
 }
 
 function On_ServerInit() { 
