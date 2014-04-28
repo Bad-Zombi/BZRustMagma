@@ -73,7 +73,6 @@ var plugin = {};
 		
 	    if(he.Attacker.SteamID != he.Victim.SteamID && he.Victim.SteamID != undefined){
 	    	he.Attacker.InventoryNotice(parseInt(he.DamageAmount) + " damage");
-	    	//he.Attacker.InventoryNotice("player"); // ----------------------------- Remove This!
 	    }   
 	}
 
@@ -92,7 +91,7 @@ var plugin = {};
 			} else if(DeathEvent.Attacker.SteamID != undefined && DeathEvent.Attacker.SteamID != DeathEvent.Victim.SteamID){
 				var murder = true;
 				
-				DeathEvent.Attacker.InventoryNotice(parseInt(DeathEvent.DamageAmount) + " damage");
+				//DeathEvent.Attacker.InventoryNotice(parseInt(DeathEvent.DamageAmount) + " damage");
 			    
 			} else {
 				var murder = false;

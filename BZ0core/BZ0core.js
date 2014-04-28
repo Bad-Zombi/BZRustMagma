@@ -60,12 +60,19 @@ var plugin = {};
 	}
 
 	function handleError(funcName, err){
-		Util.ConsoleLog("Error logged in " + plugin.name + ".", true);
-		Plugin.Log("Error_log", "in " + funcName + " -- Error Message: " + err.message + " (" + plugin.name + ")");
-	    if(err.description != undefined){
-	        Plugin.Log("Error_log", "in " + funcName + " -- Error Description: " + err.description + " (" + plugin.name + ")")
-	    }
-	    Plugin.Log("Error_log", "-------------------------------------------------------------------------");
+		var log_errors_to_file = DataStore.Get("BZ0core", "log_errors_to_file");
+
+		if(log_errors_to_file == 1){
+			Util.ConsoleLog("Error logged in " + plugin.name + ".", true);
+			Plugin.Log("Error_log", "in " + funcName + " -- Error Message: " + err.message + " (" + plugin.name + ")");
+		    if(err.description != undefined){
+		        Plugin.Log("Error_log", "in " + funcName + " -- Error Description: " + err.description + " (" + plugin.name + ")")
+		    }
+		    Plugin.Log("Error_log", "-------------------------------------------------------------------------");
+		} else {
+			Util.ConsoleLog("Unlogged error...", true);
+		}
+		
 	}
 
 	function confSetting(name, section) {
@@ -150,6 +157,7 @@ var plugin = {};
 	        var Config = {};
 		        Config['global_chat_name'] = "Rustard";
 		        Config['admin_console_debug'] = 0;
+		        Config['log_errors_to_file'] = 0;
 
 	        var RemoteHost = {};
 		        RemoteHost['server'] = "notset";
@@ -171,6 +179,7 @@ var plugin = {};
 	    DataStore.Add("BZ0core", "serverPass", confSetting("serverPass", "RemoteHost"));
 	    DataStore.Add("BZ0core", "serverScript", confSetting("serverScript", "RemoteHost"));
 	    DataStore.Add("BZ0core", "admin_console_debug", confSetting("admin_console_debug"));
+	    DataStore.Add("BZ0core", "log_errors_to_file", confSetting("log_errors_to_file"));
 
 	    Server.server_message_name = confSetting("global_chat_name");    
 
