@@ -127,6 +127,15 @@ var plugin = {};
 		return eval("(function(){return " + request + ";})()");
 	}
 
+	function loc2web (worldObj) {
+		var location = worldObj.Location.ToString();	
+		location = location.replace("(", "");
+		location = location.replace(")", "");
+		location = location.replace(", ", "|");
+		location = location.replace(", ", "|");
+		return location;
+	}
+
 	function bzCoreCheck(){
 
 		return 'loaded';

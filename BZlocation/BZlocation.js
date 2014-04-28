@@ -78,15 +78,6 @@ var plugin = {};
 	    }
 	}
 
-	function loc2web (worldObj) {
-		var location = worldObj.Location.ToString();	
-		location = location.replace("(", "");
-		location = location.replace(")", "");
-		location = location.replace(", ", "|");
-		location = location.replace(", ", "|");
-		return location;
-	}
-
 	function locator(Player) {
 		try{
 
