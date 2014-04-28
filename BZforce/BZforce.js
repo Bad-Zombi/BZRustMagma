@@ -47,3 +47,6 @@ var plugin = {};
 		}
 
 	}
+
+
+	// check for users trying to change setting and stop them.
