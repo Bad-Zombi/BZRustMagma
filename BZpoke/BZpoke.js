@@ -25,32 +25,54 @@ var plugin = {};
 			
 	}
 
-	function On_EntityHurt(he) {
 
-		// TODO... use some sort of table to give actual object names.
+	
 
-		var OwnerSteamID = he.Entity.OwnerID.ToString();
-		var OwnerName = DataStore.Get(OwnerSteamID, "BZName");
+	function On_PlayerHurt(he) {
 
-		try{
-
-			var ProbeStatus = DataStore.Get(he.Attacker.SteamID, "BZProbe");
+		if (DataStore.Get(he.Attacker.SteamID, "BZpoke") == "on"){
 			
-			if(OwnerSteamID != he.Attacker.SteamID && ProbeStatus == "on"){
-				//he.Attacker.Notice("You hit " + OwnerName + "'s object!");
-				if (OwnerName == undefined || OwnerName == null){
-					he.Attacker.Notice("You have no idea who owns this object!");
-				} else {
-					he.Attacker.Notice(OwnerName + " owns this object.");
-				}	
-			} else if(OwnerSteamID == he.Attacker.SteamID && ProbeStatus == "on") {
-				he.Attacker.Notice("You own this object.");
+			he.DamageAmount = 0;
+			
+			if(!he.Victim.SteamID && he.DamageEvent.victim.idMain == "MaleSleeper(Clone) (SleepingAvatar)"){
+				var creator = he.DamageEvent.sender.idMain.creatorID;
+				var cSid = he.DamageEvent.sender.idMain.creatorID.ToString();
+				he.Attacker.Notice("You Poked " + DataStore.Get(cSid, "BZName"));
+			} else {
+				he.Attacker.Notice("You Poked " + he.Victim.Name);
+				he.Attacker.Message(he.Attacker.Name + " just poked you. (No Damage)");
 			}
 
-		} catch(err) {
-
-			handleError("On_EntityHurt", err);
 		}
+	}
+
+	function On_EntityHurt(he) {
+
+		if (DataStore.Get(he.Attacker.SteamID, "BZpoke") == "on"){
+			
+			he.DamageAmount = 0;
+			
+			if(he.Entity.Owner != undefined){
+				// owner is online.
+				if(he.Entity.Owner.SteamID == he.Attacker.SteamID){
+					he.Attacker.Notice("You're poking your own stuff.");
+				} else {
+					he.Attacker.Notice("That stuff is owned by " + hr.Entity.Owner.Name);
+				}
+			} else {
+
+				var OwnerSteamID = he.Entity.OwnerID.ToString();
+				var OwnerName = DataStore.Get(OwnerSteamID, "BZName");
+
+				if (OwnerName == undefined || OwnerName == null){
+					he.Attacker.Notice("You have no idea who's stuff that is!");
+				} else {
+					he.Attacker.Notice("That stuff is owned by " + OwnerName);
+				}	
+			}
+
+		}
+
 
 		
 	}
@@ -70,7 +92,7 @@ var plugin = {};
 						Player.Message("Poker deactivated.");
 					} else {
 						DataStore.Add(Player.SteamID, "BZpoke", "on");
-						Player.Message("Poker is active. Hit an object to find out the owner name.");
+						Player.Message("Poker is active. Hit an object to find out who owns them. (Will do zero damage)");
 					}
 				} catch(err) {
 					handleError("On_Command", err);
