@@ -179,6 +179,84 @@ var plugin = {};
 
 
 // Some things I have yet to rewrite for this:
+
+	function consoleDump(ev, indent, title, sub){
+
+		if(sub != undefined){
+			Util.ConsoleLog("--------------------- x -------------------", true);
+			Plugin.Log("dump", "-- meh --");
+			return;
+		}
+
+		if(title != undefined){
+			Util.ConsoleLog(title + "----------------------------------------", true);
+			Plugin.Log("dump", title + "----------------------------------------");
+		} else {
+			Util.ConsoleLog("----------------------------------------", true);
+			Plugin.Log("dump", "-------------------------------------------------------------------------");
+		}
+
+		if(indent != undefined){
+			var indent = ' -- ';
+		}
+		
+
+		for (var x in ev) {
+		     var output_name = x;
+			 var output_value = ev[x];
+
+			 if(typeof(output_value) == "object"){
+			 	Util.ConsoleLog(indent + "(" + typeof(output_value) + ") " + output_name + " : " + output_value, true);
+			 	Plugin.Log("dump", indent + "(" + typeof(output_value) + ") " + output_name + " : " + output_value);
+
+			 	for (var y in output_value) {
+
+			 		//consoleDump(y, indent+'--', output_name, 1);
+				     var name2 = y;
+					 var value2 = output_value[y];
+					 if(typeof(value2) == "object"){
+					 	Util.ConsoleLog(" o--- " + name2 + " : " + value2, true);
+					 	Plugin.Log("dump", " o--- " + name2 + " : " + value2);
+					 } else {
+					 	if(typeof(value2) != "function"){
+					 		Util.ConsoleLog(" s--- " + name2 + " : " + value2, true);
+					 		Plugin.Log("dump", " s--- " + name2 + " : " + value2);
+					 	}
+					 	
+					 }
+				}
+
+			 } else {
+			 	if(typeof(output_value) != "function"){
+			 		Util.ConsoleLog(indent + output_name + " : " + output_value, true);
+			 		Plugin.Log("dump", indent + output_name + " : " + output_value);
+			 	}
+			 	
+			 }
+		}
+		
+		Util.ConsoleLog("----------------------------------------", true);
+		Plugin.Log("dump", "------------------ end --------------------");
+	}
+
+	function dataWrite (Player, eventName, dataObj, indent) {
+		if(indent == undefined){
+			var indent = " - ";
+		}
+		Player.Message(eventName+": ");
+		Player.Message("------");
+		for (var x in dataObj) {
+		     var output_name = x;
+			 var output_value = dataObj[x];
+			 if(typeof(output_value) != "function"){
+			 	Player.Message(indent + output_name + " : " + output_value);
+			 }
+		}
+		
+		Player.Message("----------------------------------------");
+	}
+
+
 	/*
 		// Use this for logging stuff -- demove after dev stage 
 		// Ideally have one function which data is sent to that lets you choose chat, broadcast, console or file log?
