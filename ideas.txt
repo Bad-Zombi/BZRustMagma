@@ -1,5 +1,47 @@
 just saving for later: ░█
 
+------------
+
+turn server decay on
+on decay event check for last time a player was on. if its within the time slot... dont decay
+
+-------
+
+see if it supports checking for function.
+
+if so... move all the plugin details to datastore (at least version)
+
+find out if there is a better way to have plugin data stored (other than plugin.value - whatever)
+
+update all plugins to use this check and make master function in core so we canhave a simple requirement check
+
+------------------------------------
+
+add perks for various levels... set/find traps, hide sleeper, foraging, gather bonus, gear mantainance etc.
+
+
+---------------------
+
+loot tables
+
+--------------------
+
+crafting tables
+
+----------------------
+
+exp system
+
+-----------------
+
+make table for traps cost. just resources, eg... lqm, wood planks, etc.
+
+
+--------------
+
+rework data dump script to make it work deeper.
+------------
+
 proficiency system... a users starts with 0xp in each weapon (possibly other things too)
 as user gets more hits/kills with the item their xp goes up and they gain levels.
 lowest levels have a chance of accident like blowing self up with c4 or setting it wrong... shooting self in the foot etc.
@@ -101,3 +143,5 @@ maybe make a new token on server init and use that for updates rather than the
 
 godmode stuff. change name to "Admin GODmode" or something when active...
 also send popup to admin and attacked if he is hit with godmode on so there are no mistakes.
+
+
