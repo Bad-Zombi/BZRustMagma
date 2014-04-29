@@ -56,7 +56,21 @@ var plugin = {};
 	    if ( !Plugin.IniExists( getFilename() ) ) {
 
 	        var Config = {};
-	        	Config['save_for_later'] = 0
+	        	Config['player_damage_notify'] = 1;
+	        	Config['animal_damage_notify'] = 1;
+	        	Config['broadcast_animals'] = 1;
+	        	Config['broadcast_mutants'] = 1;
+	        	Config['broadcast_murders'] = 1;
+	        	Config['broadcast_sleepers'] = 1;
+	        	Config['broadcast_others'] = 1;
+	        	Config['send_animals'] = 1;
+	        	Config['send_mutants'] = 1;
+	        	Config['send_murders'] = 1;
+	        	Config['send_sleepers'] = 1;
+	        	Config['send_others'] = 1;
+	        	Config['broadcast_name'] = "Death";
+
+
 
 	        var iniData = {};
 	        	iniData["Config"] = Config;
@@ -70,10 +84,12 @@ var plugin = {};
 
 	function On_PlayerHurt(he) {
 
-		
-	    if(he.Attacker.SteamID != he.Victim.SteamID && he.Victim.SteamID != undefined){
-	    	he.Attacker.InventoryNotice(parseInt(he.DamageAmount) + " damage");
-	    }   
+		if(confSetting("player_damage_notify") == 1){
+			// check damage type for bleeding. dont send if bleeding ------------------- TODO
+		    if(he.Attacker.SteamID != he.Victim.SteamID && he.Victim.SteamID != undefined && he.DamageEvent.victim.idMain != "MaleSleeper(Clone) (SleepingAvatar)"){
+		    	he.Attacker.InventoryNotice(parseInt(he.DamageAmount) + " damage");
+		    }   
+		}
 	}
 
 	function On_PlayerKilled(DeathEvent) {
@@ -98,8 +114,7 @@ var plugin = {};
 				
 			}
 		} catch(err) {
-			Plugin.Log("Error_log", "Error Message: " + err.message + " in On_PlayerKilled murder test");
-	        Plugin.Log("Error_log", "Error Description: " + err.description + " in On_PlayerKilled murder test")
+			handleError("On_PlayerKilled", err);
 		}
 		
 		
@@ -152,29 +167,35 @@ var plugin = {};
 	    	msg['VICTIM'] = victim;
 	    	msg['PART'] = part;
 	    	msg['WEAPON'] = weapon;
-	    	msg['DISTANCE'] = Util.GetVectorsDistance(DeathEvent.Attacker.Location, DeathEvent.Victim.Location);
+	    	msg['DISTANCE'] = parseInt(Util.GetVectorsDistance(DeathEvent.Attacker.Location, DeathEvent.Victim.Location));
 
 
 			//Server.Broadcast("⊕" + killer + " just murdered " + victim + " right in the " + part + " with " + weapon + " from " + Util.GetVectorsDistance(DeathEvent.Attacker.Location, DeathEvent.Victim.Location) + " meters!");
 
-			Server.BroadcastFrom("⊕", "[color#FF0000]" + make_message(9, "pvp_messages", msg));
-
-			var data = {};
+			if(confSetting("broadcast_murders") == 1){
+				Server.BroadcastFrom(confSetting("broadcast_name"), "[color#FF0000]" + make_message(9, "pvp_messages", msg));
+			}
 			
-			data['action'] = "kill";
-			data['type'] = "playerkill";
-			data['killer'] = DeathEvent.Attacker.Name;
-			data['ksid'] = DeathEvent.Attacker.SteamID;
-			data['kpos'] = loc2web(DeathEvent.Attacker);
-			data['victim'] = victim;
-			data['vsid'] = DeathEvent.Victim.SteamID;
-			data['vpos'] = loc2web(DeathEvent.Victim);
-			data['weapon'] = wweapon;
-			data['distance'] = distance;
-			data['part'] = part;
-		
+			if(confSetting("send_murders") == 1){
+				
+				var data = {};
+				
+				data['action'] = "kill";
+				data['type'] = "playerkill";
+				data['killer'] = DeathEvent.Attacker.Name;
+				data['ksid'] = DeathEvent.Attacker.SteamID;
+				data['kpos'] = loc2web(DeathEvent.Attacker);
+				data['victim'] = victim;
+				data['vsid'] = DeathEvent.Victim.SteamID;
+				data['vpos'] = loc2web(DeathEvent.Victim);
+				data['weapon'] = wweapon;
+				data['distance'] = distance;
+				data['part'] = part;
+			
 
-			var response = sendData(data);
+				var response = sendData(data);
+
+			}
 
 	    } else {
 
@@ -254,57 +275,63 @@ var plugin = {};
 		    	}
 
 		    }
-	    	
-	    	switch(deathtype){
 
-	    		case "item":
-	    			Server.BroadcastFrom("⊕", "[color#FFA500]" + victim + " just was gutted by " + cod + "!");
-	    		break;
+	    	if(confSetting("broadcast_others") == 1){
+	    		switch(deathtype){
 
-	    		case "explosives":
-	    			Server.BroadcastFrom("⊕", "[color#FFA500]" + victim + " just blew himself up with " + cod + "!");
-	    		break;
+	    		
+		    		case "item":
+		    			Server.BroadcastFrom(confSetting("broadcast_name"), "[color#FFA500]" + victim + " just was gutted by " + cod + "!");
+		    		break;
 
-	    		case "ai":
-	    			Server.BroadcastFrom("⊕", "[color#FFA500]" + victim + " just got jacked up by " + cod + "!");
-	    		break;
+		    		case "explosives":
+		    			Server.BroadcastFrom(confSetting("broadcast_name"), "[color#FFA500]" + victim + " just blew himself up with " + cod + "!");
+		    		break;
 
-	    		case "environmental":
-	    			Server.BroadcastFrom("⊕", "[color#FFA500]" + victim + " died from " + cod + "!");
-	    		break;
+		    		case "ai":
+		    			Server.BroadcastFrom(confSetting("broadcast_name"), "[color#FFA500]" + victim + " just got jacked up by " + cod + "!");
+		    		break;
 
-	    		case "manual":
-	    			Server.BroadcastFrom("⊕", "[color#FFA500]" + victim + " has died from autoerotic asphyxiation!");
-	    		break;
+		    		case "environmental":
+		    			Server.BroadcastFrom(confSetting("broadcast_name"), "[color#FFA500]" + victim + " died from " + cod + "!");
+		    		break;
 
-	    		case "water":
-	    			Server.BroadcastFrom("⊕", "[color#FFA500]" + victim + " should have taken swimming lessons.");
-	    		break;
+		    		case "manual":
+		    			Server.BroadcastFrom(confSetting("broadcast_name"), "[color#FFA500]" + victim + " has died from autoerotic asphyxiation!");
+		    		break;
 
-	    		default:
-	    			Server.BroadcastFrom("⊕", "[color#FFA500]" + victim + " has died under mysterious circumstances.");
-	    		break;
+		    		case "water":
+		    			Server.BroadcastFrom(confSetting("broadcast_name"), "[color#FFA500]" + victim + " should have taken swimming lessons.");
+		    		break;
+
+		    		default:
+		    			Server.BroadcastFrom(confSetting("broadcast_name"), "[color#FFA500]" + victim + " has died under mysterious circumstances.");
+		    		break;
+		    	
 
 
-
+		    	}
 	    	}
 
-	    	var data = {};
-			
-			data['action'] = "kill";
+	    	if(confSetting("send_others") == 1){
+	    		var data = {};
+				
+				data['action'] = "kill";
 
-			if(deathtype == 'ai'){
-				data['type'] = "aikill";
-				data['killer'] = wtype;
-			} else {
-				data['type'] = wtype;
-			}
+				if(deathtype == 'ai'){
+					data['type'] = "aikill";
+					data['killer'] = wtype;
+				} else {
+					data['type'] = wtype;
+				}
 
-			data['victim'] = victim;
-			data['vsid'] = DeathEvent.Victim.SteamID;
-			data['vpos'] = loc2web(DeathEvent.Victim);
+				data['victim'] = victim;
+				data['vsid'] = DeathEvent.Victim.SteamID;
+				data['vpos'] = loc2web(DeathEvent.Victim);
 
-			var response = sendData(data);
+				var response = sendData(data);
+	    	}
+		    	
 	    }
 
 	    /*
@@ -334,13 +361,12 @@ var plugin = {};
 
 	function On_NPCHurt(he) {
 
-		he.Attacker.InventoryNotice(parseInt(he.DamageAmount) + " damage");
-		//he.Attacker.InventoryNotice("npc"); // ----------------------------- Remove This!
+		if(confSetting("animal_damage_notify") == 1){
+			he.Attacker.InventoryNotice(parseInt(he.DamageAmount) + " damage");
+		}
 	}
 
 	function On_NPCKilled(DeathEvent) {
-
-		
 
 		try{
 			DeathEvent.Attacker.InventoryNotice(parseInt(DeathEvent.DamageAmount) + " damage");
@@ -375,55 +401,73 @@ var plugin = {};
 			
 			var victim = "undefined";
 			var wvictim = "undefined";
+			var animaltype = "undefined";
 			var reward = false;
 			switch(DeathEvent.Victim.Name){
 				case "Chicken_A":
 					victim = "a chicken";
 					wvictim = "chicken";
+					animaltype = "a"
 				break;
 
 				case "Rabbit_A":
 					victim = "a bunny";
 					wvictim = "bunny";
+					animaltype = "a"
 				break;
 
 				case "Stag_A":
 					victim = "a deer";
 					wvictim = "deer";
+					animaltype = "a"
 				break;
 
 				case "Boar_A":
 					victim = "a pig";
 					wvictim = "pig";
+					animaltype = "a"
 				break;
 
 				case "MutantWolf":
 					victim = "a mutant wolf";
 					wvictim = "mutant wolf";
 					reward = "reward";
+					animaltype = "m"
 				break;
 
 				case "MutantBear":
 					victim = "a mutant bear";
 					wvictim = "mutant bear";
 					reward = "reward";
+					animaltype = "m"
 				break;
 
 				case "Wolf":
 					victim = "a wolf";
 					wvictim = "wolf";
 					reward = "reward";
+					animaltype = "a"
 				break;
 
 				case "Bear":
 					victim = "a bear";
 					wvictim = "bear";
 					reward = "reward";
+					animaltype = "a"
 				break;
 			}
 
+
+			if(DeathEvent.DamageEvent.sender.networkView.position != undefined){
+				var dist = parseInt(Util.GetVectorsDistance(DeathEvent.Attacker.Location, DeathEvent.DamageEvent.sender.networkView.position));
+				var distance = " from " + dist + " meters.";
+				var wdistance = dist;
+			} else {
+				var distance = ' -- ';
+			}
 			
-			Server.BroadcastFrom("⊕", "[color#808000]" + attacker + " killed " + victim + " with " + weapon);
+
+			
 
 
 			var data = {};
@@ -436,15 +480,59 @@ var plugin = {};
 			data['weapon'] = wweapon;
 			data['callback'] = reward;
 
-			var response = sendData(data);
-
-			if(response.reward != undefined){
-				DeathEvent.Attacker.InventoryNotice(response.reward);
+			if(wdistance != undefined){
+				data['distance'] = wdistance;
 			}
+
+			if(confSetting("broadcast_animals") == 1 && animaltype == "a"){
+				Server.BroadcastFrom(confSetting("broadcast_name"), "[color#808000]" + attacker + " killed " + victim + " with " + weapon + distance);
+				var response = sendData(data);
+
+				if(response.reward != undefined){
+					DeathEvent.Attacker.InventoryNotice(response.reward);
+				}
+
+				var admin_console_debug = DataStore.Get("BZ0core", "admin_console_debug");
+
+				if(admin_console_debug == 1){
+
+					if(response.status == "error"){
+						Util.ConsoleLog("message: " + response.reason, true);
+					} else if(response.status == "success"){
+						Util.ConsoleLog("message: " + response.message, true);
+					} else {
+						Util.ConsoleLog("error: strange things happened in playerLocationsCallback", true);
+					}
+
+				}
+			} else if(confSetting("broadcast_mutants") == 1  && animaltype == "m"){
+				Server.BroadcastFrom(confSetting("broadcast_name"), "[color#808000]" + attacker + " killed " + victim + " with " + weapon  + distance);
+				var response = sendData(data);
+
+				if(response.reward != undefined){
+					DeathEvent.Attacker.InventoryNotice(response.reward);
+				}
+
+				var admin_console_debug = DataStore.Get("BZ0core", "admin_console_debug");
+
+				if(admin_console_debug == 1){
+
+					if(response.status == "error"){
+						Util.ConsoleLog("message: " + response.reason, true);
+					} else if(response.status == "success"){
+						Util.ConsoleLog("message: " + response.message, true);
+					} else {
+						Util.ConsoleLog("error: strange things happened in playerLocationsCallback", true);
+					}
+
+				}
+			}
+
+			
 		} catch(err) {
 
-			Plugin.Log("Error_log", "Error Message: " + err.message + " in On_NPCKilled");
-	        Plugin.Log("Error_log", "Error Description: " + err.description + " in On_NPCKilled")
+			handleError("On_NPCKilled", err);
+			
 
 		}
 	}
@@ -457,34 +545,36 @@ var plugin = {};
 			var OwnerName = DataStore.Get(OwnerSteamID, "BZName");
 
 			try{
-		        Server.Broadcast(he.Attacker.Name + " murdered " + OwnerName + " in his sleep!");
+				if(confSetting("broadcast_sleepers") == 1){
+					Server.BroadcastFrom(confSetting("broadcast_name"), he.Attacker.Name + " murdered " + OwnerName + " in his sleep!");
+		        }
 
-		        
-		        var data = {};
+		        if(confSetting("send_sleepers") == 1){
+			        var data = {};
 
-		        data['action'] = "kill";
-				data['type'] = "sleeper";
-				data['killer'] = he.Attacker.Name;
-				data['ksid'] = he.Attacker.SteamID;
-				data['kpos'] = loc2web(he.Attacker);
-				data['victim'] = OwnerName;
-				data['vsid'] = OwnerSteamID;
+			        data['action'] = "kill";
+					data['type'] = "sleeper";
+					data['killer'] = he.Attacker.Name;
+					data['ksid'] = he.Attacker.SteamID;
+					data['kpos'] = loc2web(he.Attacker);
+					data['victim'] = OwnerName;
+					data['vsid'] = OwnerSteamID;
 
-				var posx = parseInt(he.Entity.X);
-				var posy = parseInt(he.Entity.Y);
-				var posz = parseInt(he.Entity.Z);
+					var posx = parseInt(he.Entity.X);
+					var posy = parseInt(he.Entity.Y);
+					var posz = parseInt(he.Entity.Z);
 
-				data['vpos'] = posx+"|"+posy+"|"+posz;
+					data['vpos'] = posx+"|"+posy+"|"+posz;
 
 
-				var response = sendData(data);
+					var response = sendData(data);
 
-				if(response.reward != undefined){
-					DeathEvent.Attacker.InventoryNotice(response.reward);
+					if(response.reward != undefined){
+						DeathEvent.Attacker.InventoryNotice(response.reward);
+					}
 				}
 			} catch(err) {
-				Server.Broadcast("Error Message: " + err.message);
-				Server.Broadcast("Error Description: " + err.description);
+				handleError("On_EntityHurt", err);
 			}
 
 	    }
@@ -496,10 +586,21 @@ var plugin = {};
 		cmd = Data.ToLower(cmd);
 		switch(cmd) {
 
-			case "test":
+			case "chicken":
+
+				var i = 1;
+				while(i<=15){
+					World.Spawn(':chicken_prefab', Player.X, Player.Y, Player.Z);
+					i++;
+				}
 				
 			break;
 
 	    }
 	}
+
+
+
+
+
 
