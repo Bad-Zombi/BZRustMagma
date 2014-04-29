@@ -72,7 +72,6 @@ var plugin = {};
 		} else {
 			Util.ConsoleLog("Unlogged error...", true);
 		}
-		
 	}
 
 	function confSetting(name, section) {
@@ -183,8 +182,7 @@ var plugin = {};
 
 	    Server.server_message_name = confSetting("global_chat_name");    
 
-	    Util.ConsoleLog(plugin.name + " loaded.", true);
-	    
+	    Util.ConsoleLog(plugin.name + " loaded.", true); 
 	}
 
 	function On_ServerInit() { 
@@ -218,7 +216,7 @@ var plugin = {};
 			var indent = ' -- ';
 		}
 		
-
+		
 		for (var x in ev) {
 		     var output_name = x;
 			 var output_value = ev[x];
@@ -254,6 +252,57 @@ var plugin = {};
 		}
 		
 		Util.ConsoleLog("----------------------------------------", true);
+		Plugin.Log("dump", "------------------ end --------------------");
+	}
+
+	function fileDump(ev, indent, title, sub){
+
+		if(sub != undefined){
+			Plugin.Log("dump", "-- meh --");
+			return;
+		}
+
+		if(title != undefined){
+			Plugin.Log("dump", title + "----------------------------------------");
+		} else {
+			Plugin.Log("dump", "-------------------------------------------------------------------------");
+		}
+
+		if(indent != undefined){
+			var indent = ' -- ';
+		}
+		
+		
+		for (var x in ev) {
+		     var output_name = x;
+			 var output_value = ev[x];
+
+			 if(typeof(output_value) == "object"){
+			 	Plugin.Log("dump", indent + "(" + typeof(output_value) + ") " + output_name + " : " + output_value);
+
+			 	for (var y in output_value) {
+
+			 		//consoleDump(y, indent+'--', output_name, 1);
+				     var name2 = y;
+					 var value2 = output_value[y];
+					 if(typeof(value2) == "object"){
+					 	Plugin.Log("dump", " o--- " + name2 + " : " + value2);
+					 } else {
+					 	if(typeof(value2) != "function"){
+					 		Plugin.Log("dump", " s--- " + name2 + " : " + value2);
+					 	}
+					 	
+					 }
+				}
+
+			 } else {
+			 	if(typeof(output_value) != "function"){
+			 		Plugin.Log("dump", indent + output_name + " : " + output_value);
+			 	}
+			 	
+			 }
+		}
+		
 		Plugin.Log("dump", "------------------ end --------------------");
 	}
 
