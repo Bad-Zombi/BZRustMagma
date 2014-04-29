@@ -131,7 +131,7 @@ var plugin = {};
 
 	        var Config = {};
 	        	Config['send_online_to_web'] = 0;
-		        Config['poll_time_in_seconds'] = 10;
+		        Config['poll_time_in_seconds'] = 600;
 		        Config['filter_usernames'] = 1;
 
 	        var iniData = {};
