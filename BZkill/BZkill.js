@@ -369,7 +369,10 @@ var plugin = {};
 	function On_NPCKilled(DeathEvent) {
 
 		try{
-			DeathEvent.Attacker.InventoryNotice(parseInt(DeathEvent.DamageAmount) + " damage");
+
+			if(confSetting("animal_damage_notify") == 1){
+				DeathEvent.Attacker.InventoryNotice(parseInt(DeathEvent.DamageAmount) + " damage");
+			}
 
 			var attacker = DeathEvent.Attacker.Name;
 			var attackerSid = DeathEvent.Attacker.SteamID;
@@ -484,9 +487,15 @@ var plugin = {};
 				data['distance'] = wdistance;
 			}
 
-			if(confSetting("broadcast_animals") == 1 && animaltype == "a"){
-				Server.BroadcastFrom(confSetting("broadcast_name"), "[color#808000]" + attacker + " killed " + victim + " with " + weapon + distance);
-				var response = sendData(data);
+			if(animaltype == "a"){
+				
+				if(confSetting("broadcast_animals") == 1){
+					Server.BroadcastFrom(confSetting("broadcast_name"), "[color#808000]" + attacker + " killed " + victim + " with " + weapon + distance);
+				}
+
+				if(confSetting("send_animals") == 1){
+					var response = sendData(data);
+				}
 
 				if(response.reward != undefined){
 					DeathEvent.Attacker.InventoryNotice(response.reward);
@@ -505,9 +514,15 @@ var plugin = {};
 					}
 
 				}
-			} else if(confSetting("broadcast_mutants") == 1  && animaltype == "m"){
-				Server.BroadcastFrom(confSetting("broadcast_name"), "[color#808000]" + attacker + " killed " + victim + " with " + weapon  + distance);
-				var response = sendData(data);
+			} else if(animaltype == "m"){
+
+				if(confSetting("broadcast_mutants") == 1){
+					Server.BroadcastFrom(confSetting("broadcast_name"), "[color#808000]" + attacker + " killed " + victim + " with " + weapon  + distance);
+				}
+				
+				if(confSetting("send_mutants") == 1){
+					var response = sendData(data);
+				}
 
 				if(response.reward != undefined){
 					DeathEvent.Attacker.InventoryNotice(response.reward);

@@ -102,12 +102,12 @@ var plugin = {};
 			 var value = data[x];
 			 chunk = chunk + "&" + key + "=" + value;
 			 if(admin_console_debug == 1){
-			 	Util.ConsoleLog(key + ": " + value, true);
+			 	//Util.ConsoleLog(key + ": " + value, true);
 			 }
 		}
 
 		if(admin_console_debug == 1){
-		 	Util.ConsoleLog("chunk: " + chunk, true);
+		 	//Util.ConsoleLog("chunk: " + chunk, true);
 		 }
 
 		if(method == true){
@@ -255,12 +255,16 @@ var plugin = {};
 		Plugin.Log("dump", "------------------ end --------------------");
 	}
 
-	function fileDump(ev, indent, title, sub){
+	function fileDump(ev, title, ignore, indent, sub){
 
 		if(sub != undefined){
 			Plugin.Log("dump", "-- meh --");
 			return;
 		}
+
+		if(ignore != undefined){
+			ignore = "ignore";
+		} 
 
 		if(title != undefined){
 			Plugin.Log("dump", title + "----------------------------------------");
@@ -288,7 +292,7 @@ var plugin = {};
 					 if(typeof(value2) == "object"){
 					 	Plugin.Log("dump", " o--- " + name2 + " : " + value2);
 					 } else {
-					 	if(typeof(value2) != "function"){
+					 	if(name2 != ignore && typeof(value2) != "function"){
 					 		Plugin.Log("dump", " s--- " + name2 + " : " + value2);
 					 	}
 					 	
@@ -296,7 +300,7 @@ var plugin = {};
 				}
 
 			 } else {
-			 	if(typeof(output_value) != "function"){
+			 	if(output_name != ignore && typeof(output_value) != "function"){
 			 		Plugin.Log("dump", indent + output_name + " : " + output_value);
 			 	}
 			 	

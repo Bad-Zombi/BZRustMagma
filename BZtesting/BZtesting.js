@@ -1,24 +1,9 @@
 // User tools for remote and offline data
 
 var plugin = {};
-	plugin.name = "BZpoke";
+	plugin.name = "BZtesting";
 	plugin.author = "BadZombi";
-	plugin.version = "0.7";
-
-
-
-function poke_player(he){
-	he.DamageAmount = 0;
-			
-	if(!he.Victim.SteamID && he.DamageEvent.victim.idMain == "MaleSleeper(Clone) (SleepingAvatar)"){
-		var creator = he.DamageEvent.sender.idMain.creatorID;
-		var cSid = he.DamageEvent.sender.idMain.creatorID.ToString();
-		he.Attacker.Notice("You Poked " + DataStore.Get(cSid, "BZName"));
-	} else {
-		he.Attacker.Notice("You Poked " + he.Victim.Name);
-		he.Victim.Message(he.Attacker.Name + " just poked you. (No Damage)");
-	}
-}
+	plugin.version = "0.1";
 
 
 // main plugin stuff:
@@ -30,35 +15,16 @@ function poke_player(he){
 	        return false;
 	    }
 
-	    if ( !Plugin.IniExists( getFilename() ) ) {
-
-	        var Config = {};
-	        	Config['poke_only_for_admins'] = 0;
-
-	        var iniData = {};
-	        	iniData["Config"] = Config;
-
-	        var conf = createConfig(iniData);
-
-	    } 
-
 	    Util.ConsoleLog(plugin.name + " plugin loaded.", true);
 
 	}
 
 	function On_PlayerConnected(Player){
 			
-			DataStore.Add(Player.SteamID, "BZpoke", "off");
+			DataStore.Add(Player.SteamID, "BZtdest", "off");
+			DataStore.Add(Player.SteamID, "BZdupe", "off");
+			DataStore.Add(Player.SteamID, "BZrepceil", "off");
 			
-	}
-
-
-	
-
-	function On_PlayerHurt(he) {
-
-		
-
 	}
 
 	function On_EntityHurt(he) {
@@ -132,17 +98,88 @@ function poke_player(he){
 			}
 			
 		}
-
-
-		
 	}
 
 	function On_Command(Player, cmd, args) { 
 
 		cmd = Data.ToLower(cmd);
+		var active = DataStore.Get(Player.SteamID, "BZ" + cmd);
 		switch(cmd) {
 
-			var active = DataStore.Get(Player.SteamID, "BZ" + cmd);
+			case "testkit":
+				if(Player.Admin){
+					if(args.Length == 1){
+						var giveto = Player.Find(args[0]);
+
+						if(giveto.SteamID){
+							giveTestKit(giveto);
+							Player.MessageFrom("Test tool", "Test kit given to: " + giveto.Name);
+							break;
+						} else {
+							Player.MessageFrom("Test tool", "No player named " + args[0] + "was found.");
+							break;
+						}
+
+						break;
+						
+					} else {
+						giveTestKit(Player);
+						break;
+					}
+				} else {
+					Player.Message("nope.");
+				}
+			break;
+
+			case "mods":
+				if(Player.Admin){
+					if(args.Length == 1){
+						var giveto = Player.Find(args[0]);
+
+						if(giveto.SteamID){
+							giveMods(giveto);
+							Player.MessageFrom("Test tool", "Mods kit given to: " + giveto.Name);
+							break;
+						} else {
+							Player.MessageFrom("Test tool", "No player named " + args[0] + "was found.");
+							break;
+						}
+
+						break;
+						
+					} else {
+						giveMods(Player);
+						break;
+					}
+				} else {
+					Player.Message("nope.");
+				}
+			break;
+
+			case "woodparts":
+				if(Player.Admin){
+					if(args.Length == 1){
+						var giveto = Player.Find(args[0]);
+
+						if(giveto.SteamID){
+							giveWB(giveto);
+							Player.MessageFrom("Test tool", "Mods kit given to: " + giveto.Name);
+							break;
+						} else {
+							Player.MessageFrom("Test tool", "No player named " + args[0] + "was found.");
+							break;
+						}
+
+						break;
+						
+					} else {
+						giveWB(Player);
+						break;
+					}
+				} else {
+					Player.Message("nope.");
+				}
+			break;
 
 			case "tdest":
 				if(Player.Admin){
@@ -213,6 +250,36 @@ function poke_player(he){
 				Plugin.Log("Entities", " . ");
 			break;
 
+			case "takemoney":
+                try{
+                    if (!Player.Admin){
+                        Player.Message("You can't take money you twit.");
+                    } else if (args.Length == 0){
+                        Player.Message("Please enter a player's name!");
+                        Player.Message("Example: /takemoney Kuhlkid 100");
+                        return;
+                    } else if (args.Length < 2){
+                        Player.Message("Please enter an ammount to give the player!");
+                        Player.Message("Example: /takemoney Kuhlkid 100");
+                        return;
+                    } else {
+                        var user = Player.Find(args[0]);
+                        if(user != undefined && user != null){
+                            var amount = args[1];
+                            //RemoveMoney(user, amount);
+                            user.Message("$" + amount + " has been removed from your account!");
+                            Player.Message("You have taken $" + amount + " from " + args[0] + ".");
+                            break;
+                        } else {
+                            Player.Message("Sorry. A user named " + args[0] + " was not found!");
+                        }                      
+                    }
+                } catch(err) {
+                    Player.MessageFrom("Error", err.message);
+                    Player.MessageFrom("Description", err.description);
+                }
+       		break;
+
 	    }
 	}
 
@@ -247,7 +314,192 @@ function poke_player(he){
 	}
 
 	function BZTreminderCallback(params){
+	}
 
+
+	function giveTestKit(Player){
+
+		var Inv = Player.Inventory;
+
+		Player.Inventory.DropAll();
+
+		Player.Inventory.AddItemTo("Sleeping Bag", 0, 1);
+		Player.Inventory.AddItemTo("Arrow", 6, 10);
+		Player.Inventory.AddItemTo("Arrow", 12, 10);
+		Player.Inventory.AddItemTo("Arrow", 18, 10);
+		Player.Inventory.AddItemTo("556 Ammo", 19, 250);
+		placeandcheckweapon(Player, "M4", 20);
+		placeandcheckweapon(Player, "Bolt Action Rifle", 21);
+		Player.Inventory.AddItemTo("Explosive Charge", 22, 5);
+		Player.Inventory.AddItemTo("Small Rations", 23, 30);
+		Player.Inventory.AddItemTo("Hunting Bow", 24, 1);
+		Player.Inventory.AddItemTo("9mm Ammo", 25, 250);
+		Player.Inventory.AddItemTo("9mm Ammo", 26, 250);
+		Player.Inventory.AddItemTo("Shotgun Shells", 27, 250);
+		Player.Inventory.AddItemTo("Supply Signal", 28, 1);
+		Player.Inventory.AddItemTo("Large Medkit", 29, 5);
+		
+		// belt items
+		Player.Inventory.AddItemTo("Hatchet", 30, 1);
+		placeandcheckweapon(Player, "P250", 31, "belt");
+		placeandcheckweapon(Player, "MP5A4", 32, "belt");
+		placeandcheckweapon(Player, "Shotgun", 33, "belt");
+		Player.Inventory.AddItemTo("F1 Grenade", 34, 5);
+		Player.Inventory.AddItemTo("Large Medkit", 35, 5);
+
+		// armor
+		Player.Inventory.AddItemTo("Kevlar Helmet", 36, 1);
+		Player.Inventory.AddItemTo("Kevlar Vest", 37, 1);
+		Player.Inventory.AddItemTo("Kevlar Pants", 38, 1);
+		Player.Inventory.AddItemTo("Kevlar Boots", 39, 1);
+
+		Player.MessageFrom("Test tool", "Woo! You got a test kit!");
+	}
+
+	function giveMods(Player){
+		Player.Inventory.AddItem("Holo sight");
+		Player.Inventory.AddItem("Silencer");
+		Player.Inventory.AddItem("Flashlight Mod");
+		Player.Inventory.AddItem("Laser Sight");
+	}
+
+	function giveWB(Player){
+		Player.Inventory.AddItem("Wood Foundation", 250);
+		Player.Inventory.AddItem("Wood Pillar", 250);
+		Player.Inventory.AddItem("Wood Wall", 250);
+		Player.Inventory.AddItem("Wood Window", 250);
+		Player.Inventory.AddItem("Wood Doorway", 250);
+		Player.Inventory.AddItem("Wood Ceiling", 250);
+		Player.Inventory.AddItem("Wood Stairs", 250);
+		Player.Inventory.AddItem("Wood Ramp", 250);
+	}
+
+	function giveDoors(Player){
+		Player.Inventory.AddItem("Metal Door", 250);
+	}
+
+	function placeandcheckweapon(Player, name, slot, group, count){
+		try{
+			Player.Inventory.AddItemTo(name, slot, 1);
+
+			if(group == undefined){
+				var group = "item";
+			}
+
+			if(count == undefined){
+				var count = 1;
+			} else {
+				count++;
+			}
+
+			switch(group){
+
+				case "item":
+					var item = Player.Inventory.Items[slot];
+				break;
+
+				case "belt":
+					var item = Player.Inventory.BarItems[slot - 30];
+				break;
+
+				case "armor":
+					var item = Player.Inventory.ArmorItems[slot];
+				break;
+
+			}
+			
+			var itemSlots = item.InventoryItem.freeModSlots;
+
+			//Player.Message(name + " try " + count);
+			if(name == "Bolt Action Rifle"){
+				var minslots = 4;
+			} else {
+				var minslots = 5;
+			}
+			if(itemSlots < minslots && count < 50){
+				Player.Inventory.RemoveItem(slot);
+				placeandcheckweapon(Player, name, slot, group, count);
+			}
+		} catch(err) {
+			Player.MessageFrom("Error", err.message);
+			Player.MessageFrom("Description", err.description);
+		}
+	}
+
+	function dump_inventory(Player){
+
+		var ignore = [];
+		ignore["idMain"] = 1;
+		ignore["character"] = 1;
+		ignore["controller"] = 1;
+		ignore["controllable"] = 1;
+		ignore["iface"] = 1;
+		ignore["inventory"] = 1;
+
+		var Inv = Player.Inventory;
+		
+		
+		var Main = Inv.Items;
+		for(var i in Main){
+			if(i.Slot != undefined && i.Slot >= 0){
+
+				Plugin.Log("Main", i.Name + " in slot " + i.Slot + " ------------------- ");
+				for (var x in i.InventoryItem) {
+				     var output_name = x;
+					 var output_value = i.InventoryItem[x];
+
+					 if(typeof(output_value) != "function" && ignore[output_name] != 1){
+					 	Plugin.Log("Main", output_name + " : " + output_value);
+					 }
+					 
+				}
+				Plugin.Log("Main", " ------------------- ");
+				Plugin.Log("Main", ". ");
+
+			}
+		}
+
+		var Armor = Inv.ArmorItems;
+		for(var i in Armor){
+			if(i.Slot != undefined && i.Slot >= 0){
+
+				Plugin.Log("Armor", i.Name + " in slot " + i.Slot + " ------------------- ");
+				for (var x in i.InventoryItem) {
+				     var output_name = x;
+					 var output_value = i.InventoryItem[x];
+
+					 if(typeof(output_value) != "function" && ignore[output_name] != 1){
+					 	Plugin.Log("Armor", output_name + " : " + output_value);
+					 }
+					 
+				}
+				Plugin.Log("Armor", " ------------------- ");
+				Plugin.Log("Armor", ". ");
+
+			}
+		}
+
+		var Belt = Inv.BarItems;
+		for(var i in Belt){
+			if(i.Slot != undefined && i.Slot >= 0){
+
+				Plugin.Log("Belt", i.Name + " in slot " + i.Slot + " ------------------- ");
+				for (var x in i.InventoryItem) {
+				     var output_name = x;
+					 var output_value = i.InventoryItem[x];
+
+					 if(typeof(output_value) != "function" && ignore[output_name] != 1){
+					 	Plugin.Log("Belt", output_name + " : " + output_value);
+					 }
+					 
+				}
+				Plugin.Log("Belt", " ------------------- ");
+				Plugin.Log("Belt", ". ");
+
+			}
+		}
+
+		
 	}
 
 	// bits to reference stuff later if needed: 

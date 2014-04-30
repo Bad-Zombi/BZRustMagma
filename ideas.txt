@@ -2,6 +2,10 @@ just saving for later: ░█
 
 ------------
 
+fix notification in poke plugin. either remember and ignore last poke on repeat or filter out damage types to just a hatchet or bow for distance shots (or something like that)
+
+-----------
+
 turn server decay on
 on decay event check for last time a player was on. if its within the time slot... dont decay
 
