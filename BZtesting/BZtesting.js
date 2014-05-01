@@ -250,34 +250,28 @@ var plugin = {};
 				Plugin.Log("Entities", " . ");
 			break;
 
-			case "takemoney":
-                try{
-                    if (!Player.Admin){
-                        Player.Message("You can't take money you twit.");
-                    } else if (args.Length == 0){
-                        Player.Message("Please enter a player's name!");
-                        Player.Message("Example: /takemoney Kuhlkid 100");
-                        return;
-                    } else if (args.Length < 2){
-                        Player.Message("Please enter an ammount to give the player!");
-                        Player.Message("Example: /takemoney Kuhlkid 100");
-                        return;
-                    } else {
-                        var user = Player.Find(args[0]);
-                        if(user != undefined && user != null){
-                            var amount = args[1];
-                            //RemoveMoney(user, amount);
-                            user.Message("$" + amount + " has been removed from your account!");
-                            Player.Message("You have taken $" + amount + " from " + args[0] + ".");
-                            break;
-                        } else {
-                            Player.Message("Sorry. A user named " + args[0] + " was not found!");
-                        }                      
-                    }
-                } catch(err) {
-                    Player.MessageFrom("Error", err.message);
-                    Player.MessageFrom("Description", err.description);
+			case "morning":
+                if(Player.Admin){
+                	
                 }
+       		break;
+
+       		case "lt":
+
+       			Player.Message("Listing traps:");
+       			var trapsTable = Datastore.Keys("BZtraps");
+       			for (var x in trapsTable){
+       				if(Datastore.Get("BZtraps", x+"_owner") != undefined){
+       					Player.Message("Trigger: " + x);
+	       				Player.Message("Target: " + Datastore.Get("BZtraps", x) );
+	       				Player.Message("Owner: " + Datastore.Get("BZtraps", x+"_owner"));
+	       				Player.Message("Type: " + Datastore.Get("BZtraps", x+"_type"));
+	       				Player.Message("-------------------------------------------------");
+	       				Server.Save();
+       				}
+	       				
+       			}
+
        		break;
 
 	    }
