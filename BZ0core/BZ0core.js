@@ -262,7 +262,7 @@ var plugin = {};
 			return;
 		}
 
-		if(ignore != undefined){
+		if(ignore == undefined){
 			ignore = "ignore";
 		} 
 
@@ -272,7 +272,7 @@ var plugin = {};
 			Plugin.Log("dump", "-------------------------------------------------------------------------");
 		}
 
-		if(indent != undefined){
+		if(indent == undefined){
 			var indent = ' -- ';
 		}
 		
