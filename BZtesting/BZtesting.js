@@ -274,6 +274,20 @@ var plugin = {};
 
        		break;
 
+       		case "flushdatastore":
+
+       			if(!Player.Admin){
+       				Player.Message("You need to be an admin!");
+       			}
+
+       			Player.Message("Flushing DataStore!");
+       			Player.Message("BZtraps table...");
+
+       			Datastore.Flush("BZtraps");
+
+
+       		break;
+
 	    }
 	}
 
