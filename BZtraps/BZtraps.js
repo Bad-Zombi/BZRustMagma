@@ -158,12 +158,12 @@ var plugin = {};
 				    	DataStore.Add("BZtraps", pendingtrap+"_owner", he.Attacker.Name.ToString());
 				    	// store trap time for use when triggered.
 				    	DataStore.Add("BZtraps", pendingtrap+"_type", DataStore.Get(he.Attacker.SteamID, "trapType").ToString());
-
+				    	DataStore.Save();
 				    	// remove trap setting status stuff
 						Datastore.Remove(he.Attacker.SteamID, "BZTpending");
 						DataStore.Remove(he.Attacker.SteamID, "BZpending");
 						DataStore.Remove(he.Attacker.SteamID, "trapType");
-						DataStore.Save();
+						
 				    	he.Attacker.Message("Trap set!");
 					}
 			    }
@@ -186,6 +186,17 @@ var plugin = {};
 	        var pendingtrap = DataStore.Get(Player.SteamID, "BZpending");
 
 	        if(pendingtrap != undefined && pendingtrap == "setTrap"){
+
+	        	var existingcheck = DataStore.Get("BZtraps", doorLoc);
+
+	        	if(existingcheck != undefined){
+	        		de.Open = false;
+        			Player.Message("There is already a trap set on this door.");
+        			Player.Message("Use \"/trap remove\" to get rid of it first.");
+        			cancelTrapSetting(Player);
+        			return;
+	        	}
+
 
 	        	if(confSetting("require_resources") == 1){
 	        		var Inv = Player.Inventory;
@@ -233,9 +244,7 @@ var plugin = {};
 			        	}
 
 	        			DataStore.Add("BZtraps", doorLoc, "spike");
-			    		// store owner info in ds for use later
 				    	DataStore.Add("BZtraps", doorLoc+"_owner", Player.Name);
-				    	// store trap time for use when triggered.
 				    	DataStore.Add("BZtraps", doorLoc+"_type", "spike");
 
 				    	DataStore.Remove(Player.SteamID, "BZpending");
