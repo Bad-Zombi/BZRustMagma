@@ -38,7 +38,8 @@ var plugin = {};
 		} else if(traptype == "spike"){
 			//var tloc = targetLoc.split("|");
 			//Player.Message(tloc[0] + ", " + tloc[1] + ", " + tloc[2]);
-			var spiketrap1 = World.Spawn(";deploy_woodspikewall", Player.X, Player.Y - 3, Player.Z);
+			Player.IsInjured = true;
+			var spiketrap1 = World.Spawn(";deploy_woodspikewall", Player.X, Player.Y - 2, Player.Z);
 			var params = new ParamsList();
             	params.Add(spiketrap1);
 
@@ -54,8 +55,6 @@ var plugin = {};
 
 		
 	}
-
-
 
 // main plugin stuff:
 
@@ -157,7 +156,7 @@ var plugin = {};
 			    		// store owner info in ds for use later
 				    	DataStore.Add("BZtraps", pendingtrap+"_owner", he.Attacker.Name.ToString());
 				    	// store trap time for use when triggered.
-				    	DataStore.Add("BZtraps", pendingtrap+"_type", DataStore.Get(he.Attacker.SteamID, "trapType").ToString());
+				    	DataStore.Add("BZtraps", pendingtrap+"_type", pendingTrapType);
 				    	DataStore.Save();
 				    	// remove trap setting status stuff
 						Datastore.Remove(he.Attacker.SteamID, "BZTpending");
@@ -178,7 +177,6 @@ var plugin = {};
 
 	function On_DoorUse(Player, de) {
 	    
-	    //consoleDump(de.Entity, ' -- ', "door stuff");
 	    var doorLoc = de.Entity.X +"|"+ de.Entity.Y +"|"+ de.Entity.Z ;
 	    
 	    if(Player == de.Entity.Owner) {
@@ -207,12 +205,9 @@ var plugin = {};
 	        			cancelTrapSetting(Player);
 	        			return;
 	        		}
-	        		// check to make sure the user has enough lqm
 	        	}
 
 	        	var pendingTrapType = DataStore.Get(Player.SteamID, "trapType");
-	        	//Player.Message("type: " + pendingTrapType);
-
 
 	        	switch(pendingTrapType){
 
@@ -240,7 +235,6 @@ var plugin = {};
 			        		} else {
 			        			Inv.RemoveItem( "Low Quality Metal", confSetting("trap_price_lqm") );
 			        		}
-			        		// check to make sure the user has enough lqm
 			        	}
 
 	        			DataStore.Add("BZtraps", doorLoc, "spike");

@@ -288,6 +288,23 @@ var plugin = {};
 
        		break;
 
+       		case "epoch":
+       			var epoch = Plugin.GetTimestamp();
+       			Player.MessageFrom("epoch", epoch);
+       		break;
+
+       		case "jsontest":
+
+	       		var players = Server.Players;
+	       		var playerData = iJSON.stringify(players);
+
+       			try{
+	       			Plugin.Log("jsondump", playerData);
+	       		} catch(err) {
+	       			Server.Broadcast(err.ToString());
+	       		}
+       		break;
+
 	    }
 	}
 
