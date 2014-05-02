@@ -123,7 +123,7 @@ var plugin = {};
 			var request = Web.POST(url, chunk);
 			if(admin_console_debug == 1){
 				//Util.ConsoleLog("sendUrl: " + url, true);
-				//Util.ConsoleLog("sendData: " + debug, true);
+				Util.ConsoleLog("sendData: " + chunk, true);
 			}
 		}
 
@@ -146,6 +146,108 @@ var plugin = {};
 
 		return 'loaded';
 	}
+
+	// In Rust We Trust JSON serializer adapted (by mikec) from json2.js 2014-02-04 Public Domain.
+	// Most recent version from https://github.com/douglascrockford/JSON-js/blob/master/json2.js
+	var iJSON = {};
+	(function () {
+		'use strict';
+		function f(n) {
+			return n < 10 ? '0' + n : n;
+		}
+		var cx,	escapable, gap, indent,	meta, rep;
+		function quote(string) {
+			escapable.lastIndex = 0;
+			return escapable.test(string) ? '"' + string.replace(escapable, function (a) {
+				var c = meta[a];
+				return typeof c === 'string' ? c : '\\u' + ('0000' + a.charCodeAt(0).toString(16)).slice(-4);
+			}) + '"' : '"' + string + '"';
+		}
+		function str(key, holder) {
+			var i, k, v, length, mind = gap, partial, value = holder[key];
+			if (value && typeof value === 'object' && typeof value.toJSON === 'function') {
+				value = value.toJSON(key);
+			}
+			switch (typeof value) {
+			case 'string':
+				return quote(value);
+			case 'number':
+				return isFinite(value) ? String(value) : 'null';
+			case 'boolean':
+			case 'null':
+				return String(value);
+			case 'object':
+				if (!value) { return 'null'; }
+				gap += indent;
+				partial = [];
+				if (Object.prototype.toString.apply(value) === '[object Array]') {
+					length = value.length;
+					for (i = 0; i < length; i += 1) {
+						partial[i] = str(i, value) || 'null';
+					}
+					v = partial.length === 0 ? '[]' : gap ? '[ ' + gap + partial.join(', ' + gap) + ' ' + mind + ']' : '[' + partial.join(',') + ']';
+					// v = partial.length === 0 ? '[]' : gap ? '[\n' + gap + partial.join(',\n' + gap) + '\n' + mind + ']' : '[' + partial.join(',') + ']';
+					gap = mind;
+					return v;
+				}
+				for (k in value) {
+					if (Object.prototype.hasOwnProperty.call(value, k)) {
+						v = str(k, value);
+						if (v) { partial.push(quote(k) + (gap ? ': ' : ':') + v); }
+					}
+				}
+				v = partial.length === 0 ? '{}' : gap ? '{ ' + gap + partial.join(', ' + gap) + ' ' + mind + '}' : '{' + partial.join(',') + '}';
+				// v = partial.length === 0 ? '{}' : gap ? '{\n' + gap + partial.join(',\n' + gap) + '\n' + mind + '}' : '{' + partial.join(',') + '}';
+				gap = mind;
+				return v;
+			}
+		}	
+		if (typeof iJSON.stringify !== 'function') {
+			escapable = /[\\\"\x00-\x1f\x7f-\x9f\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g;
+			meta = { '\b': '\\b', '\t': '\\t', '\n': '\\n', '\f': '\\f', '\r': '\\r', '"' : '\\"', '\\': '\\\\' };
+			iJSON.stringify = function (value) { gap = ''; indent = ' '; return str('', {'': value}); };
+		}
+		if (typeof iJSON.parse !== 'function') {
+			cx = /[\u0000\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g;
+			iJSON.parse = function (text, reviver) {
+				var j;
+				function walk(holder, key) {
+					var k, v, value = holder[key];
+					if (value && typeof value === 'object') {
+						for (k in value) {
+							if (Object.prototype.hasOwnProperty.call(value, k)) {
+								v = walk(value, k);
+								if (v !== undefined) {
+									value[k] = v;
+								} else {
+									delete value[k];
+								}
+							}
+						}
+					}
+					return reviver.call(holder, key, value);
+				}
+				text = String(text);
+				cx.lastIndex = 0;
+				if (cx.test(text)) {
+					text = text.replace(cx, function (a) {
+						return '\\u' +
+							('0000' + a.charCodeAt(0).toString(16)).slice(-4);
+					});
+				}
+				if (/^[\],:{}\s]*$/
+						.test(text.replace(/\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g, '@')
+							.replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, ']')
+							.replace(/(?:^|:|,)(?:\s*\[)+/g, ''))) {
+					j = eval('(' + text + ')');
+					return typeof reviver === 'function'
+						? walk({'': j}, '')
+						: j;
+				}
+				throw new SyntaxError('JSON.parse');
+			};
+		}
+	}());	
 
 // Plugin stuff:
 
