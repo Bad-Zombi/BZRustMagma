@@ -13,43 +13,32 @@ var plugin = {};
 
 			//Util.ConsoleLog("Starting player locations poll: -------------------------------------------------- ", true);
 
-			var players = Server.Players;
-			var online = players.Count;
+			var online = Server.Players.Count;
 			//Util.ConsoleLog("online count: " + online, true);
 			if(online >= 1){
 
-				var playerData = "{";
-				var count = 0;
+				var plist = {};
+				var send = false;
 
-				for (var x in players){
-					//Util.ConsoleLog("processing player: " + x.Name, true);
-					var location = loc2web(x);
-					//Util.ConsoleLog("location: " + location, true);
-					var lastLoc = DataStore.Get(x.SteamID, "BZloc");
-					if(lastLoc != undefined && location == lastLoc){
-						// do nothing... player has not moved
-						//Util.ConsoleLog("player has not moved", true);
-						online = online - 1;
-					} else {
-						//Util.ConsoleLog("player has moved! adding to array...", true);
-						count++;
+				for (var p in Server.Players) {
+					var location = loc2web(p);
+					var lastLoc = DataStore.Get(p.SteamID, "BZloc");
 
-						DataStore.Add(x.SteamID, "BZloc", location);
-						playerData += '"' + x.SteamID+ '": "' + location + '"';
-						if(count != online){
-							playerData += ',';
-						}
-						
-					}
-					
+					if(location != lastLoc){
+						plist[p.SteamID] = location;
+						DataStore.Add(p.SteamID, "BZloc", location);
+						send = true;
+					} 
+										
 				}
 
-				playerData += "}";
+				
 
-				if(count >= 1){
+				if(send == true){
 					var data = {};
 					data['action'] = "updatePlayerPositions";
-					data['playerData'] = playerData;
+					data['playerData'] = iJSON.stringify(plist);
+
 					var response = {};
 					response = sendData(data);
 
