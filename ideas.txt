@@ -1,5 +1,19 @@
 just saving for later: ░█
 
+
+------------
+
+/take X item : split off a specific amount of something into a fre einventory slot.
+
+------------
+
+rather than banks... people can bury their money in a location of their choosing. maybe save them to a map or offer some sort of reminders ... 
+commands would be "/bury 100" or "/dig 100" or something when standing within x meters of the mark.
+
+------------------
+
+change kill type on PVP death to hide killers identity?
+
 ------------
 
 fix notification in poke plugin. either remember and ignore last poke on repeat or filter out damage types to just a hatchet or bow for distance shots (or something like that)
@@ -23,7 +37,6 @@ update all plugins to use this check and make master function in core so we canh
 
 add perks for various levels... set/find traps, hide sleeper, foraging, gather bonus, gear mantainance etc.
 
-
 ---------------------
 
 loot tables
@@ -43,7 +56,7 @@ make table for traps cost. just resources, eg... lqm, wood planks, etc.
 
 --------------
 
-rework data dump script to make it work deeper.
+rework data dump script to make it work deeper. recusive. may not be needed with mikec's script stuff.
 ------------
 
 proficiency system... a users starts with 0xp in each weapon (possibly other things too)
