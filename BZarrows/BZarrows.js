@@ -1,72 +1,85 @@
 // Recover arrows from animals and players in a non magical way 
 // You have to retrieve them from the corpse rather then having them just return to you
+// Parts of this are based on ArrowRecovery (Fraccas)
 
-var plugin = {};
-    plugin.name = "BZarrows";
-    plugin.author = "BadZombi";
-    plugin.version = "0.5";
+	var BZA = {
+		name: 		'BZarrows',
+		author: 	'BadZombi',
+		version: 	'0.5.6',
+		DStable: 	'BZArrows',
+		core: 		BZCore,
+		get: function(SteamID, type){
 
-// This section is based in part off of ArrowRecovery (Fraccas)
-
-	function getArrows(SteamID, type){
-
-		if(type == "animal"){
-			var arrows = DataStore.Get("BZArrows", SteamID+"_animal");
-		} else {
-			var arrows = DataStore.Get("BZArrows", SteamID);
-		}
-		
-
-		if (arrows == undefined || arrows == null)
-			arrows = 0;
-
-		return parseInt(arrows);
-	}
-
-	function arrowHit(type, event) {
-		if (event.WeaponName == undefined && event.DamageAmount == 75){
-			var d = Math.random() * 100;
-			var BreakChance = confSetting("break_percentage");
-			if (d < BreakChance){
-				if(confSetting("notify_on_break") == true){
-					event.Attacker.InventoryNotice("Snap!");
-				}
+			if(type == "animal"){
+				var arrows = DataStore.Get(this.DStable, SteamID+"_animal");
 			} else {
-				if(type == 'animal'){
-					var arrows = getArrows(event.Attacker.SteamID, 'animal') + 1;
-					
-					if(confSetting("notify_on_stick") == 1){
-						event.Attacker.InventoryNotice(arrows + " arrows are stuck in body.");
-					}
-
-					DataStore.Add("BZArrows", event.Attacker.SteamID+"_animal", arrows);
-				} else {
-					var arrows = getArrows(event.Victim.SteamID, 'player') + 1;
-					if(confSetting("notify_on_stick") == 1){
-						event.Attacker.InventoryNotice(arrows + " arrows are stuck in " + event.Victim.Name + ".");
-					}
-					DataStore.Add("BZArrows", event.Victim.SteamID, arrows);
-				}
+				var arrows = DataStore.Get(this.DStable, SteamID);
 			}
-				
+
+			if (arrows == undefined || arrows == null)
+				arrows = 0;
+
+			return parseInt(arrows);
+		},
+		hitPlayer: function(ev) {
+			// gonna have to change the way damage is checked here to determin if its an arrow. its not a constant on player hits. 
+			if (ev.WeaponName == undefined && ev.DamageAmount == 75){
+				var d = Math.random() * 100;
+				var BreakChance = this.core.confSetting("break_percentage");
+				if (d < BreakChance){
+					if(this.core.confSetting("notify_on_break") == true){
+						ev.Attacker.InventoryNotice("Snap!");
+					}
+				} else {
+					var arrows = this.get(ev.Victim.SteamID, 'player') + 1;
+					if(this.core.confSetting("notify_on_stick") == 1){
+						ev.Attacker.InventoryNotice(arrows + " arrows are stuck in " + ev.Victim.Name + ".");
+					}
+					DataStore.Add("BZArrows", ev.Victim.SteamID, arrows);
+				}
+					
+			}
+		},
+		hitAnimal: function(ev){
+			// would be nice to have a way to maintain different instances of animals. maybe check for corpse type on gather if its in the render info or something and then pull arrow count from the ds for that animal type?
+			if (ev.WeaponName == undefined && ev.DamageAmount == 75){
+				var d = Math.random() * 100;
+				var BreakChance = this.core.confSetting("break_percentage");
+				if (d < BreakChance){
+					if(this.core.confSetting("notify_on_break") == true){
+						ev.Attacker.InventoryNotice("Snap!");
+					}
+				} else {
+					var arrows = this.get(ev.Attacker.SteamID, 'animal') + 1;
+					
+					if(this.core.confSetting("notify_on_stick") == 1){
+						ev.Attacker.InventoryNotice(arrows + " arrows are stuck in body.");
+					}
+
+					DataStore.Add("BZArrows", ev.Attacker.SteamID+"_animal", arrows);
+				}
+					
+			}
+		},
+		clear: function(P){
+
+			Datastore.Remove(this.DStable, P.SteamID);	
 		}
-			
-	}
+	};
 
-
-
-// main plugin stuff:
+// Hooks:
 
 	function On_PluginInit() { 
 
-		if(bzCoreCheck() != 'loaded'){
-	        Util.ConsoleLog("Could not load " + plugin.name + "! (Zero Core not loaded yet)", true);
+		if(BZA.core.loaded == undefined){
+	        Util.ConsoleLog("Could not load " + BZA.name+ "! (Zero Core not loaded yet)", true);
 	        return false;
 	    }
 
-	    if ( !Plugin.IniExists( getFilename() ) ) {
+	    if ( !Plugin.IniExists( 'Config' ) ) {
 
 	        var Config = {};
+	        	Config['chatName'] = 'Arrows';
 		        Config['break_percentage'] = 60;
 		        Config['notify_on_break'] = 0;
 		        Config['notify_on_stick'] = 0;
@@ -76,36 +89,30 @@ var plugin = {};
 	        var iniData = {};
 	        	iniData["Config"] = Config;
 
-	        var conf = createConfig(iniData);
+	        var conf = BZA.core.createConfig(iniData);
 
 	    } 
 
-	    Util.ConsoleLog(plugin.name + " plugin loaded.", true);
-
+	    Util.ConsoleLog(BZA.name + " v" + BZA.version + " loaded.", true);
 	}
 
 	function On_PlayerSpawned(Player, spawnEvent) {
-		
-		// Remove any arrows currently stuck in player.
-		Datastore.Remove("BZArrows", Player.SteamID);	
+
+		BZA.clear(Player);	
 	}
 
 	function On_PlayerHurt(he) {
 
 	    if(he.Attacker.SteamID != he.Victim.SteamID && he.Victim.SteamID != undefined){
-	    	
-	    	// add arrow to players datastore count
-	    	arrowHit('player', he);
-	    	
+	    	BZA.hitPlayer(he);
 	    }   
 	}
 
-	function On_PlayerKilled(DeathEvent) {
+	function On_PlayerKilled(de) {
 
-		if(DeathEvent.Attacker.SteamID != DeathEvent.Victim.SteamID && DeathEvent.Victim.SteamID != undefined){
+		if(de.Attacker.SteamID != de.Victim.SteamID && de.Victim.SteamID != undefined){
 	    	
-	    	// add arrow to players datastore count
-	    	arrowHit('player', DeathEvent);
+	    	BZA.hitPlayer(de);
 	    	
 	    }   
 		// TODO: check for arrows stuck in body and add them to drop loot	
@@ -113,15 +120,15 @@ var plugin = {};
 
 	function On_NPCHurt(he) {
 
-		arrowHit('animal', he);
+		BZA.hitAnimal(he);
 	}
 
-	function On_NPCKilled(DeathEvent) {
+	function On_NPCKilled(de) {
 
-		arrowHit('animal', DeathEvent);
+		BZA.hitAnimal(de);
 	}
 
-	function On_PlayerGathering(Player, ge) {
+	function On_PlayerGathering(P, ge) {
 		
 		
 		switch(ge.Type){
@@ -132,44 +139,29 @@ var plugin = {};
 					// maybe use this to force the first gather to be arrows and leave the other stuff for later?
 				}
 
-				var arrows = getArrows(Player.SteamID, 'animal');
+				var arrows = BZA.get(P.SteamID, 'animal');
 
-				if(confSetting("use_colors") == 1){
-					var color = "[color#"+confSetting("gather_color")+"]";
+				if(BZA.core.confSetting("use_colors") == 1){
+					var color = "[color#"+BZA.core.confSetting("gather_color")+"]";
 				} else {
 					var color = '';
 				}
 
 				if(arrows == 1){
-					//Player.InventoryNotice("+1 arrow");
-					Player.Message(color+"You recovered an arrow from the corpse.");
-					Player.Inventory.AddItem("Arrow", arrows);
-					DataStore.Remove("BZArrows", Player.SteamID+'_animal');
+					P.MessageFrom(BZA.core.confSetting("chatName"), color+"You recovered an arrow from the corpse.");
+					P.Inventory.AddItem("Arrow", arrows);
+					DataStore.Remove(BZA.DStable, P.SteamID+'_animal');
 				} else if(arrows >= 2){
 					if(arrows > 4){
 						arrows = 4;
 					}
-					//Player.InventoryNotice("+" + arrows + " arrows");
-					Player.Message(color+"You recovered " + arrows + " arrows from the corpse.");
-					Player.Inventory.AddItem("Arrow", arrows);
-					DataStore.Remove("BZArrows", Player.SteamID+"_animal");
+					P.MessageFrom(BZA.core.confSetting("chatName"), color+"You recovered " + arrows + " arrows from the corpse.");
+					P.Inventory.AddItem("Arrow", arrows);
+					DataStore.Remove(BZA.DStable, P.SteamID+"_animal");
 				}
 				
 			break;
 
 			
-		}
-	}
-
-	function On_Command(Player, cmd, args) { 
-
-		cmd = Data.ToLower(cmd);
-
-		switch(cmd){
-
-			case "arrows":
-				// just saving for possible use later...
-			break;
-
 		}
 	}
