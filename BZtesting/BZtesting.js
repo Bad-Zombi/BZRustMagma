@@ -29,6 +29,8 @@ var plugin = {};
 
 	function On_EntityHurt(he) {
 
+
+
 		
 		if(!he.Attacker.Admin){
 			return;
@@ -181,6 +183,31 @@ var plugin = {};
 				}
 			break;
 
+			case "cheat":
+				if(Player.Admin){
+					if(args.Length == 1){
+						var giveto = Player.Find(args[0]);
+
+						if(giveto.SteamID){
+							giveWB(giveto);
+							Player.MessageFrom("Test tool", "Mods kit given to: " + giveto.Name);
+							break;
+						} else {
+							Player.MessageFrom("Test tool", "No player named " + args[0] + "was found.");
+							break;
+						}
+
+						break;
+						
+					} else {
+						giveCheat(Player);
+						break;
+					}
+				} else {
+					Player.Message("nope.");
+				}
+			break;
+
 			case "tdest":
 				if(Player.Admin){
 					try{
@@ -239,10 +266,212 @@ var plugin = {};
 				}		
 			break;
 
+			case "cleanse":
+				
+				var safeIDs = [];
+					//safeIDs['76561198026242506'] = 1;
+					safeIDs['76561198110711020'] = 1; // rock
+					safeIDs['76561198104256366'] = 1; // c
+					safeIDs['76561198126027624'] = 1; // n
+
+				var alwaysdestroy = [];
+					alwaysdestroy['Campfire'] = 1;
+					alwaysdestroy['SmallStash'] = 1;
+					alwaysdestroy['Wood_Shelter'] = 1;
+					alwaysdestroy['MaleSleeper'] = 1;
+					alwaysdestroy['SleepingBagA'] = 1;
+					alwaysdestroy['WoodBoxLarge'] = 1;
+					alwaysdestroy['SingleBed'] = 1;
+					alwaysdestroy['Workbench'] = 1;
+					alwaysdestroy['WoodSpikeWall'] = 1;
+					alwaysdestroy['LargeWoodSpikeWall'] = 1;
+					alwaysdestroy['Barricade_Fence_Deployable'] = 1;
+					alwaysdestroy['WoodGate'] = 1;
+					alwaysdestroy['WoodGateway'] = 1;
+					alwaysdestroy['WoodenDoor'] = 1;
+					alwaysdestroy['WoodBox'] = 1;
+					alwaysdestroy['Furnace'] = 1;
+					alwaysdestroy['RepairBench'] = 1;
+					
+				
+					try{
+
+						for(var EachEntity in World.Entities){
+
+							if(EachEntity.Object._master != undefined){
+							
+								if(EachEntity.Name != undefined && alwaysdestroy[EachEntity.Name] == 1){
+									//Player.Message("XX -- "+EachEntity.Name);
+									EachEntity.Destroy();
+								} else if(EachEntity.OwnerID != undefined && safeIDs[EachEntity.OwnerID.ToString()] != 1){
+									//Player.Message("XX -- "+EachEntity.Name);
+									EachEntity.Destroy();
+								} else {
+									//Player.Message("...");
+								}
+
+							
+							} else {
+								
+								try{
+									if(EachEntity.Name != 'MetalDoor'){
+										EachEntity.Destroy();
+									}
+									
+									//Player.Message(EachEntity.Name);
+								} catch(err){
+
+								}
+
+							}
+						}
+
+					} catch(err) {
+	       				Player.MessageFrom("Error", err.message);
+						Player.MessageFrom("Description", err.description);
+	       			}
+
+	       			Server.BroadcastNotice("World cleansed!");
+	       		
+
+				//var safe = Player.SteamID.ToString();
+
+				//for(var EachEntity in World.Entities){
+				//		
+				//	if(EachEntity.IsDeployableObject()){	
+				//		
+				//		var entStr = EachEntity.OwnerID.ToString();
+				//		if(entStr == safe){
+				//			Player.Message(EachEntity.Name);
+				//			
+				//		}
+				//		
+				//	}
+				//}
+				
+				
+			break;
+
+			case "listall":
+				
+				var safeIDs = [];
+					//safeIDs['76561198026242506'] = 1;
+					safeIDs['76561198110711020'] = 1; // rock
+					safeIDs['76561198104256366'] = 1; // c
+					safeIDs['76561198126027624'] = 1; // n
+
+				var alwaysdestroy = [];
+					alwaysdestroy['Campfire'] = 1;
+					alwaysdestroy['SmallStash'] = 1;
+					alwaysdestroy['Wood_Shelter'] = 1;
+					alwaysdestroy['MaleSleeper'] = 1;
+					alwaysdestroy['SleepingBagA'] = 1;
+					alwaysdestroy['WoodBoxLarge'] = 1;
+					alwaysdestroy['SingleBed'] = 1;
+					alwaysdestroy['Workbench'] = 1;
+					alwaysdestroy['WoodSpikeWall'] = 1;
+					alwaysdestroy['LargeWoodSpikeWall'] = 1;
+					alwaysdestroy['Barricade_Fence_Deployable'] = 1;
+					alwaysdestroy['WoodGate'] = 1;
+					alwaysdestroy['WoodGateway'] = 1;
+					alwaysdestroy['WoodenDoor'] = 1;
+					alwaysdestroy['WoodBox'] = 1;
+					alwaysdestroy['Furnace'] = 1;
+					alwaysdestroy['RepairBench'] = 1;
+					
+				
+					try{
+						var count = 0;
+						var list = {};
+						for(var EachEntity in World.Entities){
+							
+							if(EachEntity.Object._master != undefined){
+								count++;
+
+								var foo = EachEntity.Object._master;
+								var smId = foo.networkViewID.id.ToString();
+								var owner = foo.ownerID.ToString();
+
+								//var pc = 0;
+								//for(var p in parts){
+								//	pc++;
+								//}
+
+								if(list[smId] == undefined){
+									var tmp = EachEntity.GetLinkedStructs();
+									var bits = {};
+										bits["location"] = v32str(foo.containedBounds.center, ",");;
+										bits["owner"] = String(owner);
+										bits["size"] = v32str(foo.containedBounds.size, ",");
+										bits["extents"] = v32str(foo.containedBounds.extents, ",");
+										bits["min"] = v32str(foo.containedBounds.min, ",");
+										bits["max"] = v32str(foo.containedBounds.max, ",");
+										bits["partCount"] = 1;
+									list[smId] = bits;
+
+									Player.Message("added " + smId + " - ");
+									
+								} else {
+									list[smId]["partCount"]++;
+								}
+								
+
+								
+							
+							} else {
+								
+								//try{
+								//	if(EachEntity.Name != 'MetalDoor'){
+								//		EachEntity.Destroy();
+								//	}
+								//	
+								//	//Player.Message(EachEntity.Name);
+								//} catch(err){
+//
+								//}
+//
+							}
+						}
+
+						
+						var data = iJSON.stringify(list);
+	       				Plugin.Log("output", data);
+
+					} catch(err) {
+	       				Player.MessageFrom("Error", err.message);
+						Player.MessageFrom("Description", err.description);
+	       			}
+
+	       			
+
+	       			Server.BroadcastNotice("World list generated!");
+	       		
+
+				//var safe = Player.SteamID.ToString();
+
+				//for(var EachEntity in World.Entities){
+				//		
+				//	if(EachEntity.IsDeployableObject()){	
+				//		
+				//		var entStr = EachEntity.OwnerID.ToString();
+				//		if(entStr == safe){
+				//			Player.Message(EachEntity.Name);
+				//			
+				//		}
+				//		
+				//	}
+				//}
+				
+				
+			break;
+
 			case "entities":
 				
 				for (var x in World.Entities) {
-					Plugin.Log("Entities", x.Name + " " + x.X + " " + x.Y + " " + x.Z);
+					
+						Plugin.Log("Entities", x.Name + " " + x.X + " " + x.Y + " " + x.Z);
+					
+					
 				}
 
 				Plugin.Log("Entities", "---------------------------------------------------------------------------------------------- ");
@@ -293,10 +522,49 @@ var plugin = {};
        			Player.MessageFrom("epoch", epoch);
        		break;
 
+       		case "md5":
+       			var string = "password";
+       			try{
+       				var md5string = hex_md5("one");
+       				Player.MessageFrom("md5", md5string);
+       				var md5string = hex_md5("two");
+       				Player.MessageFrom("md5", md5string);
+       				var md5string = hex_md5("three");
+       				Player.MessageFrom("md5", md5string);
+       			} catch(err) {
+       				Player.MessageFrom("Error", err.message);
+					Player.MessageFrom("Description", err.description);
+       			}
+       			
+       		break;
+
        		case "jsontest":
 
 	       		var players = Server.Players;
+	       		var online = players.Count;
+
+
 	       		var playerData = iJSON.stringify(players);
+
+	       		for (var x in players){
+					
+					var location = loc2web(x);
+					var lastLoc = DataStore.Get(x.SteamID, "BZloc");
+					if(lastLoc != undefined && location == lastLoc){
+						online = online - 1;
+					} else {
+						//Util.ConsoleLog("player has moved! adding to array...", true);
+						count++;
+
+						DataStore.Add(x.SteamID, "BZloc", location);
+						playerData += '"' + x.SteamID+ '": "' + location + '"';
+						if(count != online){
+							playerData += ',';
+						}
+						
+					}
+					
+				}
 
        			try{
 	       			Plugin.Log("jsondump", playerData);
@@ -397,6 +665,42 @@ var plugin = {};
 		Player.Inventory.AddItem("Wood Ceiling", 250);
 		Player.Inventory.AddItem("Wood Stairs", 250);
 		Player.Inventory.AddItem("Wood Ramp", 250);
+	}
+
+	function giveCheat(Player){
+		Player.Inventory.AddItem("Wood Foundation BP", 1);
+		Player.Inventory.AddItem("Wood Pillar BP", 1);
+		Player.Inventory.AddItem("Wood Wall BP", 1);
+
+		Player.Inventory.AddItem("Wood Window BP", 1);
+		Player.Inventory.AddItem("Wood Doorway BP", 1);
+		Player.Inventory.AddItem("Wood Ceiling BP", 1);
+
+		Player.Inventory.AddItem("Wood Stairs BP", 1);
+		Player.Inventory.AddItem("Wood Ramp BP", 1);
+		Player.Inventory.AddItem("Wood Planks Blueprint", 1);
+
+		Player.Inventory.AddItem("Metal Window Bars Blueprint", 1);
+		Player.Inventory.AddItem("Metal Door Blueprint", 1);
+		Player.Inventory.AddItem("Sleeping Bag Blueprint", 1);
+
+		Player.Inventory.AddItem("Camp Fire Blueprint", 1);
+		Player.Inventory.AddItem("Large Wood Storage Blueprint", 1);
+		Player.Inventory.AddItem("Hunting Bow Blueprint", 1);
+
+		Player.Inventory.AddItem("Wood Gate Blueprint", 1);
+		Player.Inventory.AddItem("Wood Gateway Blueprint", 1);
+		Player.Inventory.AddItem("Spike Wall Blueprint", 1);
+
+		Player.Inventory.AddItem("Pipe Shotgun Blueprint", 1);
+		Player.Inventory.AddItem("HandCannon Blueprint", 1);
+		Player.Inventory.AddItem("Handmade Shell", 250);
+
+		Player.Inventory.AddItem("Small Stash", 10);
+		Player.Inventory.AddItem("Wood Shelter", 2);
+		Player.Inventory.AddItem("Large Wood Storage", 2);
+		Player.Inventory.AddItem("Wooden Door", 2);
+
 	}
 
 	function giveDoors(Player){
