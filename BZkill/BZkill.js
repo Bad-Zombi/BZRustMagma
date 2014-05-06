@@ -1,4 +1,4 @@
-// Kill messages and web logging...
+// Kill messages and web logging
 
 var BZK = {
 	name: 		'BZkill',
