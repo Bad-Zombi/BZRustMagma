@@ -1,6 +1,8 @@
-// Recover arrows from animals and players in a non magical way 
-// You have to retrieve them from the corpse rather then having them just return to you
-// Parts of this are based on ArrowRecovery (Fraccas)
+/* 
+Recover arrows from animals and players in a non magical way 
+You have to retrieve them from the corpse rather then having them just return to you
+Parts of this are based on ArrowRecovery (Fraccas)
+*/
 
 	var BZA = {
 		name: 		'BZarrows',
