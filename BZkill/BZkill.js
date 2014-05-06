@@ -1,11 +1,11 @@
-// Kill messages and web logging
+/* Kill messages and web logging */
 
 var BZK = {
-	name:	'BZkill',
-	author:	'BadZombi',
+	name:		'BZkill',
+	author:		'BadZombi',
 	version:	'0.9.2',
 	DStable:	'BZArrows',
-	core:	BZCore,
+	core:		BZCore,
 	BD: function(bodyp) {
 		//Thanks to DreTaX (DeathMSG)
 		var ini = this.loadIniData("bodyparts");
