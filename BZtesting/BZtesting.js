@@ -1,6 +1,6 @@
 // User tools for remote and offline data
 
-var BZT = {
+var BZtest = {
 	name: 		'BZtesting',
 	author: 	'BadZombi',
 	version: 	'0.2.1',
@@ -223,12 +223,12 @@ var BZT = {
 
 function On_PluginInit() { 
 
-	if(BZT.core.loaded == undefined){
-        Util.ConsoleLog("Could not load " + BZT.name+ "! (Core not loaded)", true);
+	if(BZtest.core.loaded == undefined){
+        Util.ConsoleLog("Could not load " + BZtest.name+ "! (Core not loaded)", true);
         return false;
     }
 
-    Util.ConsoleLog(BZT.name + " v" + BZT.version + " loaded.", true);
+    Util.ConsoleLog(BZtest.name + " v" + BZtest.version + " loaded.", true);
 }
 
 function On_PlayerConnected(P){
@@ -317,7 +317,7 @@ function On_Command(P, cmd, args) {
 
 		case "testkit":
 			if(P.Admin){
-				BZT.giveTestKit(P);
+				BZtest.giveTestKit(P);
 			} else {
 				P.Message("nope.");
 			}
@@ -325,7 +325,7 @@ function On_Command(P, cmd, args) {
 
 		case "mods":
 			if(P.Admin){
-				BZT.giveMods(P);
+				BZtest.giveMods(P);
 			} else {
 				P.Message("nope.");
 			}
@@ -333,7 +333,7 @@ function On_Command(P, cmd, args) {
 
 		case "woodparts":
 			if(P.Admin){
-				BZT.giveWB(P);
+				BZtest.giveWB(P);
 			} else {
 				P.Message("nope.");
 			}
@@ -341,7 +341,7 @@ function On_Command(P, cmd, args) {
 
 		case "cheat":
 			if(P.Admin){
-				BZT.giveCheat(P);
+				BZtest.giveCheat(P);
 			} else {
 				P.Message("nope.");
 			}
@@ -358,7 +358,7 @@ function On_Command(P, cmd, args) {
 						P.Message("test destroy is active. Hit an object to destroy it and some of its linked structures.");
 					}
 				} catch(err) {
-					BZT.core.handleError("On_Command", err);
+					BZtest.core.handleError("On_Command", err);
 				}
 			} else {
 				P.Message("nope.");
@@ -378,7 +378,7 @@ function On_Command(P, cmd, args) {
 						P.Message("Possibly of datastore as well.");
 					}
 				} catch(err) {
-					BZT.core.handleError("On_Command", err);
+					BZtest.core.handleError("On_Command", err);
 				}
 			} else {
 				P.Message("nope.");
@@ -398,7 +398,7 @@ function On_Command(P, cmd, args) {
 						P.Message("Possibly of datastore as well.");
 					}
 				} catch(err) {
-					BZT.core.handleError("On_Command", err);
+					BZtest.core.handleError("On_Command", err);
 				}
 			} else {
 				P.Message("nope.");
