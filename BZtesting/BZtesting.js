@@ -625,14 +625,16 @@ function On_Command(P, cmd, args) {
    			P.Message("Listing traps:");
    			var trapsTable = Datastore.Keys("BZtraps");
    			for (var x in trapsTable){
-   				if(Datastore.Get("BZtraps", x+"_owner") != undefined){
-   					P.Message("Trigger: " + x);
-       				P.Message("Target: " + Datastore.Get("BZtraps", x) );
-       				P.Message("Owner: " + Datastore.Get("BZtraps", x+"_owner"));
-       				P.Message("Type: " + Datastore.Get("BZtraps", x+"_type"));
-       				P.Message("-------------------------------------------------");
-       				Server.Save();
+   				P.Message("Trap ID: " + x);
+   				var trapData = iJSON.parse(Datastore.Get("BZtraps", x));
+   				P.Message("Type: " + trapData.type );
+   				if(trapData.type == "floor"){
+   					P.Message("Target: " + trapData.target );
    				}
+
+   				P.Message("Owner: " + trapData.owner );
+
+   				
        				
    			}
    		break;
@@ -647,6 +649,9 @@ function On_Command(P, cmd, args) {
    			P.Message("BZtraps table...");
 
    			Datastore.Flush("BZtraps");
+
+   			P.Message("BZtraps spikes...");
+   			Datastore.Flush("spikeTraps");
    		break;
 
    		case "epoch":
@@ -655,7 +660,17 @@ function On_Command(P, cmd, args) {
    		break;
 
    		case "md5":
-   			
+	   		//P.Message('x');
+	   		//try{
+	   			P.Message(HASH.get('password'));
+	   			P.Message(HASH.get('boobs'));
+	   			P.Message(HASH.get('computer'));
+	   			P.Message(HASH.get('wanker'));
+	   			P.Message(HASH.get('1'));
+	   		//} catch(err) {
+	   			//P.MessageFrom("Error", err.message);
+				//P.MessageFrom("Description", err.description);
+	   		//}
    		break;
 
    		case "jsontest":
