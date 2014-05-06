@@ -1,52 +1,52 @@
 // Force some settings on users when they connect
 
-var plugin = {};
-    plugin.name = "BZforce";
-    plugin.author = "BadZombi";
-    plugin.version = "1.0";
+	var BZF = {
+		name: 		'BZforce',
+		author: 	'BadZombi',
+		version: 	'1.1.0'
+	}
 
-// main plugin stuff:
+// Hooks:
 
 	function On_PluginInit() { 
 
-		if(bzCoreCheck() != 'loaded'){
-	        Util.ConsoleLog("Could not load " + plugin.name + "! (Zero Core not loaded yet)", true);
+		if(BZCore.loaded == undefined){
+	        Util.ConsoleLog("Could not load " + BZF.name+ "! (Core not loaded)", true);
 	        return false;
 	    }
 
-	    if ( !Plugin.IniExists( getFilename() ) ) {
+	    if ( !Plugin.IniExists( 'Config' ) ) {
 
 	        var Config = {};
-		        Config['nudity_on'] = true;
-		        Config['no_grass'] = true;
-		        Config['hide_branding'] = true;
+		        Config['nudity_on'] = 1;
+		        Config['no_grass'] = 1;
+		        Config['hide_branding'] = 1;
 
 	        var iniData = {};
 	        	iniData["Config"] = Config;
 
-	        var conf = createConfig(iniData);
+	        var conf = BZCore.createConfig(iniData, BZF.name);
 
 	    } 
 
-	    Util.ConsoleLog(plugin.name + " plugin loaded.", true);
-	    
+	    Util.ConsoleLog(BZF.name + " v" + BZF.version + " loaded.", true);
 	}
 
 	function On_PlayerConnected(Player){
 		
-		if(confSetting("nudity_on") == true){
-			Player.SendCommand("censor.nudity False");
+		if(confSetting("nudity_on") == 1){
+			Player.SendCommand("censor.nudity false");
 		}
 
-		if(confSetting("no_grass") == true){
-			Player.SendCommand("grass.on False");
+		if(confSetting("no_grass") == 1){
+			Player.SendCommand("grass.on false");
 		}
 
-		if(confSetting("hide_branding") == true){
-			Player.SendCommand("gui.hide_branding False");
+		if(confSetting("hide_branding") == 1){
+			Player.SendCommand("gui.hide_branding false");
 		}
 
 	}
 
 
-	// check for users trying to change setting and stop them.
+	// maybe TODO check for users trying to change setting and stop them.

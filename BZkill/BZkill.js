@@ -1,59 +1,53 @@
 // Kill messages and web logging...
 
-var plugin = {};
-	plugin.name = "BZkill";
-	plugin.author = "BadZombi";
-	plugin.version = "0.9";
+	var BZK = {
+		name: 		'BZkill',
+		author: 	'BadZombi',
+		version: 	'0.9.2',
+		DStable: 	'BZArrows',
+		core: 		BZCore,
+		BD: function(bodyp) {
+			//Thanks to DreTaX (DeathMSG)
+			var ini = this.loadIniData("bodyparts");
+			var name = ini.GetSetting("bodyparts", bodyp);
+			return name;
+		},
+		make_message: function(max, file, data) {
+			var d = Math.round(Math.random()*10);
+			if(d < 1 || d > max){
+				d = 1;
+			}
 
-
-// Thanks to DreTaX (DeathMSG) for these functions
-	function BD(bodyp) {
-		var ini = Bodies();
-		var name = ini.GetSetting("bodyparts", bodyp);
-		return name;
-	}
-
-	function Bodies() {
-		if(!Plugin.IniExists("bodyparts"))
-			Plugin.CreateIni("bodyparts");
-		return Plugin.GetIni("bodyparts");
-	}
-
-// custom "random" Message stuff
-	function make_message (max, file, data) {
-		var d = Math.round(Math.random()*10);
-		if(d < 1 || d > max){
-			d = 1;
+			var s = this.sentence(d, file);
+			for(var x in data){
+				s = s.replace(x, data[x]);
+			}
+			return s;
+		},
+		sentence: function(num, file) {
+			var ini = this.loadIniData(file);
+			var value = ini.GetSetting(file, num);
+			return value;
+		},
+		loadIniData: function(file) {
+			if(!Plugin.IniExists(file))
+				Plugin.CreateIni(file);
+			return Plugin.GetIni(file);
 		}
 
-		var s = sentence(d, file);
-		for(var x in data){
-			s = s.replace(x, data[x]);
-		}
-		return s;
 	}
 
-	function sentence(num, file) {
-		var ini = sentences(file);
-		var value = ini.GetSetting(file, num);
-		return value;
-	}
 
-	function sentences(file) {
-		if(!Plugin.IniExists(file))
-			Plugin.CreateIni(file);
-		return Plugin.GetIni(file);
-	}
-
-// main plugin stuff:
+// Hooks:
 
 	function On_PluginInit() { 
-	    if(bzCoreCheck() != 'loaded'){
-	        Util.ConsoleLog("Could not load " + plugin.name + "! (Zero Core not loaded yet)", true);
+
+		if(BZK.core.loaded == undefined){
+	        Util.ConsoleLog("Could not load " + BZK.name+ "! (Core not loaded)", true);
 	        return false;
 	    }
 
-	    if ( !Plugin.IniExists( getFilename() ) ) {
+	    if ( !Plugin.IniExists( 'Config' ) ) {
 
 	        var Config = {};
 	        	Config['player_damage_notify'] = 1;
@@ -70,21 +64,19 @@ var plugin = {};
 	        	Config['send_others'] = 1;
 	        	Config['broadcast_name'] = "Death";
 
-
-
 	        var iniData = {};
 	        	iniData["Config"] = Config;
 
-	        var conf = createConfig(iniData);
+	        var conf = BZK.core.createConfig(iniData, BZK.name);
 
 	    } 
 
-	    Util.ConsoleLog(plugin.name + " plugin loaded.", true);
+	    Util.ConsoleLog(BZK.name + " v" + BZK.version + " loaded.", true);
 	}
 
 	function On_PlayerHurt(he) {
 
-		if(confSetting("player_damage_notify") == 1){
+		if(BZK.core.confSetting("player_damage_notify") == 1){
 			// check damage type for bleeding. dont send if bleeding ------------------- TODO
 		    if(he.Attacker.SteamID != he.Victim.SteamID && he.Victim.SteamID != undefined && he.DamageEvent.victim.idMain != "MaleSleeper(Clone) (SleepingAvatar)"){
 		    	he.Attacker.InventoryNotice(parseInt(he.DamageAmount) + " damage");
@@ -114,7 +106,7 @@ var plugin = {};
 				
 			}
 		} catch(err) {
-			handleError("On_PlayerKilled", err);
+			BZK.core.handleError("On_PlayerKilled", err);
 		}
 		
 		
@@ -163,37 +155,35 @@ var plugin = {};
 	    	var killer = DeathEvent.Attacker.Name;
 
 	    	var msg = {};
-	    	msg['KILLER'] = killer;
-	    	msg['VICTIM'] = victim;
-	    	msg['PART'] = part;
-	    	msg['WEAPON'] = weapon;
-	    	msg['DISTANCE'] = parseInt(Util.GetVectorsDistance(DeathEvent.Attacker.Location, DeathEvent.Victim.Location));
+		    	msg['KILLER'] = killer;
+		    	msg['VICTIM'] = victim;
+		    	msg['PART'] = part;
+		    	msg['WEAPON'] = weapon;
+		    	msg['DISTANCE'] = parseInt(Util.GetVectorsDistance(DeathEvent.Attacker.Location, DeathEvent.Victim.Location));
 
 
 			//Server.Broadcast("⊕" + killer + " just murdered " + victim + " right in the " + part + " with " + weapon + " from " + Util.GetVectorsDistance(DeathEvent.Attacker.Location, DeathEvent.Victim.Location) + " meters!");
 
-			if(confSetting("broadcast_murders") == 1){
-				Server.BroadcastFrom(confSetting("broadcast_name"), "[color#FF0000]" + make_message(9, "pvp_messages", msg));
+			if(BZK.core.confSetting("broadcast_murders") == 1){
+				Server.BroadcastFrom(BZK.core.confSetting("broadcast_name"), "[color#FF0000]" + BZK.make_message(9, "pvp_messages", msg));
 			}
 			
-			if(confSetting("send_murders") == 1){
+			if(BZK.core.confSetting("send_murders") == 1){
 				
 				var data = {};
-				
-				data['action'] = "kill";
-				data['type'] = "playerkill";
-				data['killer'] = DeathEvent.Attacker.Name;
-				data['ksid'] = DeathEvent.Attacker.SteamID;
-				data['kpos'] = loc2web(DeathEvent.Attacker);
-				data['victim'] = victim;
-				data['vsid'] = DeathEvent.Victim.SteamID;
-				data['vpos'] = loc2web(DeathEvent.Victim);
-				data['weapon'] = wweapon;
-				data['distance'] = distance;
-				data['part'] = part;
+					data['action'] = "kill";
+					data['type'] = "playerkill";
+					data['killer'] = DeathEvent.Attacker.Name;
+					data['ksid'] = DeathEvent.Attacker.SteamID;
+					data['kpos'] = BZK.core.loc2web(DeathEvent.Attacker);
+					data['victim'] = victim;
+					data['vsid'] = DeathEvent.Victim.SteamID;
+					data['vpos'] = BZK.core.loc2web(DeathEvent.Victim);
+					data['weapon'] = wweapon;
+					data['distance'] = distance;
+					data['part'] = part;
 			
-
-				var response = sendData(data);
+				var response = BZK.core.sendData(data, BZK.name);
 
 			}
 
@@ -276,36 +266,36 @@ var plugin = {};
 
 		    }
 
-	    	if(confSetting("broadcast_others") == 1){
+	    	if(BZK.core.confSetting("broadcast_others") == 1){
 	    		switch(deathtype){
 
 	    		
 		    		case "item":
-		    			Server.BroadcastFrom(confSetting("broadcast_name"), "[color#FFA500]" + victim + " just was gutted by " + cod + "!");
+		    			Server.BroadcastFrom(BZK.core.confSetting("broadcast_name"), "[color#FFA500]" + victim + " just was gutted by " + cod + "!");
 		    		break;
 
 		    		case "explosives":
-		    			Server.BroadcastFrom(confSetting("broadcast_name"), "[color#FFA500]" + victim + " just blew himself up with " + cod + "!");
+		    			Server.BroadcastFrom(BZK.core.confSetting("broadcast_name"), "[color#FFA500]" + victim + " just blew himself up with " + cod + "!");
 		    		break;
 
 		    		case "ai":
-		    			Server.BroadcastFrom(confSetting("broadcast_name"), "[color#FFA500]" + victim + " just got jacked up by " + cod + "!");
+		    			Server.BroadcastFrom(BZK.core.confSetting("broadcast_name"), "[color#FFA500]" + victim + " just got jacked up by " + cod + "!");
 		    		break;
 
 		    		case "environmental":
-		    			Server.BroadcastFrom(confSetting("broadcast_name"), "[color#FFA500]" + victim + " died from " + cod + "!");
+		    			Server.BroadcastFrom(BZK.core.confSetting("broadcast_name"), "[color#FFA500]" + victim + " died from " + cod + "!");
 		    		break;
 
 		    		case "manual":
-		    			Server.BroadcastFrom(confSetting("broadcast_name"), "[color#FFA500]" + victim + " has died from autoerotic asphyxiation!");
+		    			Server.BroadcastFrom(BZK.core.confSetting("broadcast_name"), "[color#FFA500]" + victim + " has died from autoerotic asphyxiation!");
 		    		break;
 
 		    		case "water":
-		    			Server.BroadcastFrom(confSetting("broadcast_name"), "[color#FFA500]" + victim + " should have taken swimming lessons.");
+		    			Server.BroadcastFrom(BZK.core.confSetting("broadcast_name"), "[color#FFA500]" + victim + " should have taken swimming lessons.");
 		    		break;
 
 		    		default:
-		    			Server.BroadcastFrom(confSetting("broadcast_name"), "[color#FFA500]" + victim + " has died under mysterious circumstances.");
+		    			Server.BroadcastFrom(BZK.core.confSetting("broadcast_name"), "[color#FFA500]" + victim + " has died under mysterious circumstances.");
 		    		break;
 		    	
 
@@ -313,10 +303,10 @@ var plugin = {};
 		    	}
 	    	}
 
-	    	if(confSetting("send_others") == 1){
+	    	if(BZK.core.confSetting("send_others") == 1){
 	    		var data = {};
 				
-				data['action'] = "kill";
+					data['action'] = "kill";
 
 				if(deathtype == 'ai'){
 					data['type'] = "aikill";
@@ -327,9 +317,9 @@ var plugin = {};
 
 				data['victim'] = victim;
 				data['vsid'] = DeathEvent.Victim.SteamID;
-				data['vpos'] = loc2web(DeathEvent.Victim);
+				data['vpos'] = BZK.core.loc2web(DeathEvent.Victim);
 
-				var response = sendData(data);
+				var response = BZK.core.sendData(data, BZK.name);
 	    	}
 		    	
 	    }
@@ -361,7 +351,7 @@ var plugin = {};
 
 	function On_NPCHurt(he) {
 
-		if(confSetting("animal_damage_notify") == 1){
+		if(BZK.core.confSetting("animal_damage_notify") == 1){
 			he.Attacker.InventoryNotice(parseInt(he.DamageAmount) + " damage");
 		}
 	}
@@ -370,13 +360,13 @@ var plugin = {};
 
 		try{
 
-			if(confSetting("animal_damage_notify") == 1){
+			if(BZK.core.confSetting("animal_damage_notify") == 1){
 				DeathEvent.Attacker.InventoryNotice(parseInt(DeathEvent.DamageAmount) + " damage");
 			}
 
 			var attacker = DeathEvent.Attacker.Name;
 			var attackerSid = DeathEvent.Attacker.SteamID;
-			var attackerPos = loc2web(DeathEvent.Attacker);
+			var attackerPos = BZK.core.loc2web(DeathEvent.Attacker);
 
 			if(DeathEvent.DamageType == "Melee" && DeathEvent.WeaponName == undefined){
 				var weapon = "a hunting bow";
@@ -474,14 +464,14 @@ var plugin = {};
 
 
 			var data = {};
-			data['action'] = "kill";
-			data['type'] = "animalkill";
-			data['killer'] = attacker;
-			data['ksid'] = attackerSid;
-			data['kpos'] = attackerPos;
-			data['victim'] = wvictim;
-			data['weapon'] = wweapon;
-			data['callback'] = reward;
+				data['action'] = "kill";
+				data['type'] = "animalkill";
+				data['killer'] = attacker;
+				data['ksid'] = attackerSid;
+				data['kpos'] = attackerPos;
+				data['victim'] = wvictim;
+				data['weapon'] = wweapon;
+				data['callback'] = reward;
 
 			if(wdistance != undefined){
 				data['distance'] = wdistance;
@@ -489,19 +479,19 @@ var plugin = {};
 
 			if(animaltype == "a"){
 				
-				if(confSetting("broadcast_animals") == 1){
-					Server.BroadcastFrom(confSetting("broadcast_name"), "[color#808000]" + attacker + " killed " + victim + " with " + weapon + distance);
+				if(BZK.core.confSetting("broadcast_animals") == 1){
+					Server.BroadcastFrom(BZK.core.confSetting("broadcast_name"), "[color#808000]" + attacker + " killed " + victim + " with " + weapon + distance);
 				}
 
-				if(confSetting("send_animals") == 1){
-					var response = sendData(data);
+				if(BZK.core.confSetting("send_animals") == 1){
+					var response = BZK.core.sendData(data, BZK.name);
 				}
 
 				if(response.reward != undefined){
 					DeathEvent.Attacker.InventoryNotice(response.reward);
 				}
 
-				var admin_console_debug = DataStore.Get("BZ0core", "admin_console_debug");
+				var admin_console_debug = DataStore.Get(BZK.core.DStable, "admin_console_debug");
 
 				if(admin_console_debug == 1){
 
@@ -510,25 +500,25 @@ var plugin = {};
 					} else if(response.status == "success"){
 						Util.ConsoleLog("message: " + response.message, true);
 					} else {
-						Util.ConsoleLog("error: strange things happened in playerLocationsCallback", true);
+						Util.ConsoleLog("error: strange things happened in On_NPCKilled", true);
 					}
 
 				}
 			} else if(animaltype == "m"){
 
-				if(confSetting("broadcast_mutants") == 1){
-					Server.BroadcastFrom(confSetting("broadcast_name"), "[color#808000]" + attacker + " killed " + victim + " with " + weapon  + distance);
+				if(BZK.core.confSetting("broadcast_mutants") == 1){
+					Server.BroadcastFrom(BZK.core.confSetting("broadcast_name"), "[color#808000]" + attacker + " killed " + victim + " with " + weapon  + distance);
 				}
 				
-				if(confSetting("send_mutants") == 1){
-					var response = sendData(data);
+				if(BZK.core.confSetting("send_mutants") == 1){
+					var response = BZK.core.sendData(data, BZK.name);
 				}
 
 				if(response.reward != undefined){
 					DeathEvent.Attacker.InventoryNotice(response.reward);
 				}
 
-				var admin_console_debug = DataStore.Get("BZ0core", "admin_console_debug");
+				var admin_console_debug = DataStore.Get(BZK.core.DStable, "admin_console_debug");
 
 				if(admin_console_debug == 1){
 
@@ -537,7 +527,7 @@ var plugin = {};
 					} else if(response.status == "success"){
 						Util.ConsoleLog("message: " + response.message, true);
 					} else {
-						Util.ConsoleLog("error: strange things happened in playerLocationsCallback", true);
+						Util.ConsoleLog("error: strange things happened in On_NPCKilled", true);
 					}
 
 				}
@@ -546,7 +536,7 @@ var plugin = {};
 			
 		} catch(err) {
 
-			handleError("On_NPCKilled", err);
+			BZK.core.handleError("On_NPCKilled", err);
 			
 
 		}
@@ -560,20 +550,20 @@ var plugin = {};
 			var OwnerName = DataStore.Get(OwnerSteamID, "BZName");
 
 			try{
-				if(confSetting("broadcast_sleepers") == 1){
-					Server.BroadcastFrom(confSetting("broadcast_name"), he.Attacker.Name + " murdered " + OwnerName + " in his sleep!");
+				if(BZK.core.confSetting("broadcast_sleepers") == 1){
+					Server.BroadcastFrom(BZK.core.confSetting("broadcast_name"), he.Attacker.Name + " murdered " + OwnerName + " in his sleep!");
 		        }
 
-		        if(confSetting("send_sleepers") == 1){
+		        if(BZK.core.confSetting("send_sleepers") == 1){
 			        var data = {};
 
-			        data['action'] = "kill";
-					data['type'] = "sleeper";
-					data['killer'] = he.Attacker.Name;
-					data['ksid'] = he.Attacker.SteamID;
-					data['kpos'] = loc2web(he.Attacker);
-					data['victim'] = OwnerName;
-					data['vsid'] = OwnerSteamID;
+				        data['action'] = "kill";
+						data['type'] = "sleeper";
+						data['killer'] = he.Attacker.Name;
+						data['ksid'] = he.Attacker.SteamID;
+						data['kpos'] = BZK.core.loc2web(he.Attacker);
+						data['victim'] = OwnerName;
+						data['vsid'] = OwnerSteamID;
 
 					var posx = parseInt(he.Entity.X);
 					var posy = parseInt(he.Entity.Y);
@@ -582,40 +572,15 @@ var plugin = {};
 					data['vpos'] = posx+"|"+posy+"|"+posz;
 
 
-					var response = sendData(data);
+					var response = BZK.core.sendData(data, BZK.name);
 
 					if(response.reward != undefined){
 						DeathEvent.Attacker.InventoryNotice(response.reward);
 					}
 				}
 			} catch(err) {
-				handleError("On_EntityHurt", err);
+				BZK.core.handleError("On_EntityHurt", err);
 			}
 
 	    }
-
 	}
-
-	function On_Command(Player, cmd, args) { 
-
-		cmd = Data.ToLower(cmd);
-		switch(cmd) {
-
-			case "chicken":
-
-				var i = 1;
-				while(i<=15){
-					World.Spawn(':chicken_prefab', Player.X, Player.Y, Player.Z);
-					i++;
-				}
-				
-			break;
-
-	    }
-	}
-
-
-
-
-
-

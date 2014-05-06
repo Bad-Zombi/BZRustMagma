@@ -1,16 +1,16 @@
 // Zero Core : Required for all BadZombi Magma plugins.
 
 	var BZCore = {
-		name: 		'BZcore',
+		name: 		'Zero Core',
 		author: 	'BadZombi',
-		version: 	'0.2',
+		version: 	'0.2.0',
 		DStable: 	'BZ0core',
 		loaded: 	true,
-		createConfig: function(data){
+		createConfig: function(data, name){
 			
 			try {
 
-				Util.ConsoleLog("Config does not exist... creating Config.ini for " + this.name, true);
+				Util.ConsoleLog("Config does not exist... creating Config.ini for " + name, true);
 
 			    Plugin.CreateIni('Config');
 			    var newConf = Plugin.GetIni('Config');
@@ -90,13 +90,17 @@
 			location = location.replace(", ", delim);
 			return location;
 		},
-		sendData: function (data, method) {
+		sendData: function (data, pluginName, method) {
+
+			if(pluginName == undefined){
+				pluginName = 'not specified';
+			}
 			
-		    var server = DataStore.Get("BZ0core", "server"),
-		    	serverID = DataStore.Get("BZ0core", "serverID"),
-		    	serverPass = DataStore.Get("BZ0core", "serverPass"),
-		    	serverScript = DataStore.Get("BZ0core", "serverScript"),
-		    	admin_console_debug = DataStore.Get("BZ0core", "admin_console_debug");
+		    var server = DataStore.Get(this.DStable, "server"),
+		    	serverID = DataStore.Get(this.DStable, "serverID"),
+		    	serverPass = DataStore.Get(this.DStable, "serverPass"),
+		    	serverScript = DataStore.Get(this.DStable, "serverScript"),
+		    	admin_console_debug = DataStore.Get(this.DStable, "admin_console_debug");
 
 		    if(serverID == 0){
 		    	Util.ConsoleLog("RemoteHost config is still set to default. Not sending.", true);
@@ -132,12 +136,11 @@
 				if(admin_console_debug == 1){
 					//Util.ConsoleLog("sendUrl: " + url, true);
 					Util.ConsoleLog("sendData: " + chunk, true);
+					Util.ConsoleLog("req: " + request, true);
 				}
 			}
 
-			if(confSetting("admin_console_debug") == 1){
-				Util.ConsoleLog("sendData response: " + request.ToString(), true);
-			}
+			
 			return eval("(function(){return " + request + ";})()");
 		}
 	}
@@ -268,7 +271,7 @@
 	        	iniData["RemoteHost"] = RemoteHost;
 
 
-	        var conf = BZCore.createConfig(iniData);
+	        var conf = BZCore.createConfig(iniData, BZCore.name);
 
 	    } 
 

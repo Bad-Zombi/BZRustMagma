@@ -1,37 +1,244 @@
 // User tools for remote and offline data
 
-var plugin = {};
-	plugin.name = "BZtesting";
-	plugin.author = "BadZombi";
-	plugin.version = "0.1";
+var BZT = {
+		name: 		'BZtesting',
+		author: 	'BadZombi',
+		version: 	'0.2.1',
+		core: 		BZCore,
+		placeandcheckweapon: function(P, name, slot, group, count){
+			try{
+				P.Inventory.AddItemTo(name, slot, 1);
 
+				if(group == undefined){
+					var group = "item";
+				}
 
-// main plugin stuff:
+				if(count == undefined){
+					var count = 1;
+				} else {
+					count++;
+				}
+
+				switch(group){
+
+					case "item":
+						var item = P.Inventory.Items[slot];
+					break;
+
+					case "belt":
+						var item = P.Inventory.BarItems[slot - 30];
+					break;
+
+					case "armor":
+						var item = P.Inventory.ArmorItems[slot];
+					break;
+
+				}
+				
+				var itemSlots = item.InventoryItem.freeModSlots;
+
+				//P.Message(name + " try " + count);
+				if(name == "Bolt Action Rifle"){
+					var minslots = 4;
+				} else {
+					var minslots = 5;
+				}
+				if(itemSlots < minslots && count < 50){
+					P.Inventory.RemoveItem(slot);
+					this.placeandcheckweapon(P, name, slot, group, count);
+				}
+			} catch(err) {
+				P.MessageFrom("Error", err.message);
+				P.MessageFrom("Description", err.description);
+			}
+		},
+		giveTestKit: function(P){
+
+			var Inv = P.Inventory;
+
+			P.Inventory.DropAll();
+
+			P.Inventory.AddItemTo("Sleeping Bag", 0, 1);
+			P.Inventory.AddItemTo("Arrow", 6, 10);
+			P.Inventory.AddItemTo("Arrow", 12, 10);
+			P.Inventory.AddItemTo("Arrow", 18, 10);
+			P.Inventory.AddItemTo("556 Ammo", 19, 250);
+			this.placeandcheckweapon(P, "M4", 20);
+			this.placeandcheckweapon(P, "Bolt Action Rifle", 21);
+			P.Inventory.AddItemTo("Explosive Charge", 22, 5);
+			P.Inventory.AddItemTo("Small Rations", 23, 30);
+			P.Inventory.AddItemTo("Hunting Bow", 24, 1);
+			P.Inventory.AddItemTo("9mm Ammo", 25, 250);
+			P.Inventory.AddItemTo("9mm Ammo", 26, 250);
+			P.Inventory.AddItemTo("Shotgun Shells", 27, 250);
+			P.Inventory.AddItemTo("Supply Signal", 28, 1);
+			P.Inventory.AddItemTo("Large Medkit", 29, 5);
+			
+			// belt items
+			P.Inventory.AddItemTo("Hatchet", 30, 1);
+			this.placeandcheckweapon(P, "P250", 31, "belt");
+			this.placeandcheckweapon(P, "MP5A4", 32, "belt");
+			this.placeandcheckweapon(P, "Shotgun", 33, "belt");
+			P.Inventory.AddItemTo("F1 Grenade", 34, 5);
+			P.Inventory.AddItemTo("Large Medkit", 35, 5);
+
+			// armor
+			P.Inventory.AddItemTo("Kevlar Helmet", 36, 1);
+			P.Inventory.AddItemTo("Kevlar Vest", 37, 1);
+			P.Inventory.AddItemTo("Kevlar Pants", 38, 1);
+			P.Inventory.AddItemTo("Kevlar Boots", 39, 1);
+
+			P.MessageFrom("Test tool", "Woo! You got a test kit!");
+		},
+		giveMods: function(P){
+			P.Inventory.AddItem("Holo sight");
+			P.Inventory.AddItem("Silencer");
+			P.Inventory.AddItem("Flashlight Mod");
+			P.Inventory.AddItem("Laser Sight");
+		},
+		giveWB: function(P){
+			P.Inventory.AddItem("Wood Foundation", 250);
+			P.Inventory.AddItem("Wood Pillar", 250);
+			P.Inventory.AddItem("Wood Wall", 250);
+			P.Inventory.AddItem("Wood Window", 250);
+			P.Inventory.AddItem("Wood Doorway", 250);
+			P.Inventory.AddItem("Wood Ceiling", 250);
+			P.Inventory.AddItem("Wood Stairs", 250);
+			P.Inventory.AddItem("Wood Ramp", 250);
+		},
+		giveDoors: function(P){
+
+			P.Inventory.AddItem("Metal Door", 250);
+		},
+		giveCheat: function(P){
+			P.Inventory.AddItem("Wood Foundation BP", 1);
+			P.Inventory.AddItem("Wood Pillar BP", 1);
+			P.Inventory.AddItem("Wood Wall BP", 1);
+
+			P.Inventory.AddItem("Wood Window BP", 1);
+			P.Inventory.AddItem("Wood Doorway BP", 1);
+			P.Inventory.AddItem("Wood Ceiling BP", 1);
+
+			P.Inventory.AddItem("Wood Stairs BP", 1);
+			P.Inventory.AddItem("Wood Ramp BP", 1);
+			P.Inventory.AddItem("Wood Planks Blueprint", 1);
+
+			P.Inventory.AddItem("Metal Window Bars Blueprint", 1);
+			P.Inventory.AddItem("Metal Door Blueprint", 1);
+			P.Inventory.AddItem("Sleeping Bag Blueprint", 1);
+
+			P.Inventory.AddItem("Camp Fire Blueprint", 1);
+			P.Inventory.AddItem("Large Wood Storage Blueprint", 1);
+			P.Inventory.AddItem("Hunting Bow Blueprint", 1);
+
+			P.Inventory.AddItem("Wood Gate Blueprint", 1);
+			P.Inventory.AddItem("Wood Gateway Blueprint", 1);
+			P.Inventory.AddItem("Spike Wall Blueprint", 1);
+
+			P.Inventory.AddItem("Pipe Shotgun Blueprint", 1);
+			P.Inventory.AddItem("HandCannon Blueprint", 1);
+			P.Inventory.AddItem("Handmade Shell", 250);
+
+			P.Inventory.AddItem("Small Stash", 10);
+			P.Inventory.AddItem("Wood Shelter", 2);
+			P.Inventory.AddItem("Large Wood Storage", 2);
+			P.Inventory.AddItem("Wooden Door", 2);
+		},
+		dump_inventory: function(P){
+
+			var ignore = [];
+			ignore["idMain"] = 1;
+			ignore["character"] = 1;
+			ignore["controller"] = 1;
+			ignore["controllable"] = 1;
+			ignore["iface"] = 1;
+			ignore["inventory"] = 1;
+
+			var Inv = P.Inventory;
+			
+			
+			var Main = Inv.Items;
+			for(var i in Main){
+				if(i.Slot != undefined && i.Slot >= 0){
+
+					Plugin.Log("Main", i.Name + " in slot " + i.Slot + " ------------------- ");
+					for (var x in i.InventoryItem) {
+					     var output_name = x;
+						 var output_value = i.InventoryItem[x];
+
+						 if(typeof(output_value) != "function" && ignore[output_name] != 1){
+						 	Plugin.Log("Main", output_name + " : " + output_value);
+						 }
+						 
+					}
+					Plugin.Log("Main", " ------------------- ");
+					Plugin.Log("Main", ". ");
+
+				}
+			}
+
+			var Armor = Inv.ArmorItems;
+			for(var i in Armor){
+				if(i.Slot != undefined && i.Slot >= 0){
+
+					Plugin.Log("Armor", i.Name + " in slot " + i.Slot + " ------------------- ");
+					for (var x in i.InventoryItem) {
+					     var output_name = x;
+						 var output_value = i.InventoryItem[x];
+
+						 if(typeof(output_value) != "function" && ignore[output_name] != 1){
+						 	Plugin.Log("Armor", output_name + " : " + output_value);
+						 }
+						 
+					}
+					Plugin.Log("Armor", " ------------------- ");
+					Plugin.Log("Armor", ". ");
+
+				}
+			}
+
+			var Belt = Inv.BarItems;
+			for(var i in Belt){
+				if(i.Slot != undefined && i.Slot >= 0){
+
+					Plugin.Log("Belt", i.Name + " in slot " + i.Slot + " ------------------- ");
+					for (var x in i.InventoryItem) {
+					     var output_name = x;
+						 var output_value = i.InventoryItem[x];
+
+						 if(typeof(output_value) != "function" && ignore[output_name] != 1){
+						 	Plugin.Log("Belt", output_name + " : " + output_value);
+						 }
+						 
+					}
+					Plugin.Log("Belt", " ------------------- ");
+					Plugin.Log("Belt", ". ");
+
+				}
+			}
+		}
+}
+
+// Hooks:
 
 	function On_PluginInit() { 
 
-		if(bzCoreCheck() != 'loaded'){
-	        Util.ConsoleLog("Could not load " + plugin.name + "! (Zero Core not loaded yet)", true);
+		if(BZT.core.loaded == undefined){
+	        Util.ConsoleLog("Could not load " + BZT.name+ "! (Core not loaded)", true);
 	        return false;
 	    }
 
-	    Util.ConsoleLog(plugin.name + " plugin loaded.", true);
-
+	    Util.ConsoleLog(BZT.name + " v" + BZT.version + " loaded.", true);
 	}
 
-	function On_PlayerConnected(Player){
-			
-			DataStore.Add(Player.SteamID, "BZtdest", "off");
-			DataStore.Add(Player.SteamID, "BZdupe", "off");
-			DataStore.Add(Player.SteamID, "BZrepceil", "off");
-			
+	function On_PlayerConnected(P){
+		DataStore.Add(P.SteamID, "BZtdest", "off");
+		DataStore.Add(P.SteamID, "BZdupe", "off");
+		DataStore.Add(P.SteamID, "BZrepceil", "off");	
 	}
 
 	function On_EntityHurt(he) {
 
-
-
-		
 		if(!he.Attacker.Admin){
 			return;
 		}
@@ -102,167 +309,99 @@ var plugin = {};
 		}
 	}
 
-	function On_Command(Player, cmd, args) { 
+	function On_Command(P, cmd, args) { 
 
 		cmd = Data.ToLower(cmd);
-		var active = DataStore.Get(Player.SteamID, "BZ" + cmd);
+		var active = DataStore.Get(P.SteamID, "BZ" + cmd);
 		switch(cmd) {
 
 			case "testkit":
-				if(Player.Admin){
-					if(args.Length == 1){
-						var giveto = Player.Find(args[0]);
-
-						if(giveto.SteamID){
-							giveTestKit(giveto);
-							Player.MessageFrom("Test tool", "Test kit given to: " + giveto.Name);
-							break;
-						} else {
-							Player.MessageFrom("Test tool", "No player named " + args[0] + "was found.");
-							break;
-						}
-
-						break;
-						
-					} else {
-						giveTestKit(Player);
-						break;
-					}
+				if(P.Admin){
+					BZT.giveTestKit(P);
 				} else {
-					Player.Message("nope.");
+					P.Message("nope.");
 				}
 			break;
 
 			case "mods":
-				if(Player.Admin){
-					if(args.Length == 1){
-						var giveto = Player.Find(args[0]);
-
-						if(giveto.SteamID){
-							giveMods(giveto);
-							Player.MessageFrom("Test tool", "Mods kit given to: " + giveto.Name);
-							break;
-						} else {
-							Player.MessageFrom("Test tool", "No player named " + args[0] + "was found.");
-							break;
-						}
-
-						break;
-						
-					} else {
-						giveMods(Player);
-						break;
-					}
+				if(P.Admin){
+					BZT.giveMods(P);
 				} else {
-					Player.Message("nope.");
+					P.Message("nope.");
 				}
 			break;
 
 			case "woodparts":
-				if(Player.Admin){
-					if(args.Length == 1){
-						var giveto = Player.Find(args[0]);
-
-						if(giveto.SteamID){
-							giveWB(giveto);
-							Player.MessageFrom("Test tool", "Mods kit given to: " + giveto.Name);
-							break;
-						} else {
-							Player.MessageFrom("Test tool", "No player named " + args[0] + "was found.");
-							break;
-						}
-
-						break;
-						
-					} else {
-						giveWB(Player);
-						break;
-					}
+				if(P.Admin){
+					BZT.giveWB(P);
 				} else {
-					Player.Message("nope.");
+					P.Message("nope.");
 				}
 			break;
 
 			case "cheat":
-				if(Player.Admin){
-					if(args.Length == 1){
-						var giveto = Player.Find(args[0]);
-
-						if(giveto.SteamID){
-							giveWB(giveto);
-							Player.MessageFrom("Test tool", "Mods kit given to: " + giveto.Name);
-							break;
-						} else {
-							Player.MessageFrom("Test tool", "No player named " + args[0] + "was found.");
-							break;
-						}
-
-						break;
-						
-					} else {
-						giveCheat(Player);
-						break;
-					}
+				if(P.Admin){
+					BZT.giveCheat(P);
 				} else {
-					Player.Message("nope.");
+					P.Message("nope.");
 				}
 			break;
 
 			case "tdest":
-				if(Player.Admin){
+				if(P.Admin){
 					try{
 						if(active == "on"){
-							DataStore.Add(Player.SteamID, "BZ" + cmd, "off");
-							Player.Message("test destroy deactivated.");
+							DataStore.Add(P.SteamID, "BZ" + cmd, "off");
+							P.Message("test destroy deactivated.");
 						} else {
-							DataStore.Add(Player.SteamID, "BZ" + cmd, "on");
-							Player.Message("test destroy is active. Hit an object to destroy it and some of its linked structures.");
+							DataStore.Add(P.SteamID, "BZ" + cmd, "on");
+							P.Message("test destroy is active. Hit an object to destroy it and some of its linked structures.");
 						}
 					} catch(err) {
-						handleError("On_Command", err);
+						BZT.core.handleError("On_Command", err);
 					}
 				} else {
-					Player.Message("nope.");
+					P.Message("nope.");
 				}
 			break;
 
 			case "dupe":
-				if(Player.Admin){
+				if(P.Admin){
 					try{
 						if(active == "on"){
-							DataStore.Add(Player.SteamID, "BZ" + cmd, "off");
-							Player.Message("Dupe deactivated.");
+							DataStore.Add(P.SteamID, "BZ" + cmd, "off");
+							P.Message("Dupe deactivated.");
 						} else {
-							DataStore.Add(Player.SteamID, "BZ" + cmd, "on");
-							Player.Message("Dupe is active. Be Careful!");
-							Player.Message("Remember that this may screw up the server and require a wipe.");
-							Player.Message("Possibly of datastore as well.");
+							DataStore.Add(P.SteamID, "BZ" + cmd, "on");
+							P.Message("Dupe is active. Be Careful!");
+							P.Message("Remember that this may screw up the server and require a wipe.");
+							P.Message("Possibly of datastore as well.");
 						}
 					} catch(err) {
-						handleError("On_Command", err);
+						BZT.core.handleError("On_Command", err);
 					}
 				} else {
-					Player.Message("nope.");
+					P.Message("nope.");
 				}
 			break;
 
 			case "repceil":
-				if(Player.Admin){
+				if(P.Admin){
 					try{
 						if(active == "on"){
-							DataStore.Add(Player.SteamID, "BZ" + cmd, "off");
-							Player.Message("Ceiling replace is off.");
+							DataStore.Add(P.SteamID, "BZ" + cmd, "off");
+							P.Message("Ceiling replace is off.");
 						} else {
-							DataStore.Add(Player.SteamID, "BZ" + cmd, "on");
-							Player.Message("Ceiling replace is active. Be Careful!");
-							Player.Message("Remember that this may screw up the server and require a wipe.");
-							Player.Message("Possibly of datastore as well.");
+							DataStore.Add(P.SteamID, "BZ" + cmd, "on");
+							P.Message("Ceiling replace is active. Be Careful!");
+							P.Message("Remember that this may screw up the server and require a wipe.");
+							P.Message("Possibly of datastore as well.");
 						}
 					} catch(err) {
-						handleError("On_Command", err);
+						BZT.core.handleError("On_Command", err);
 					}
 				} else {
-					Player.Message("nope.");
+					P.Message("nope.");
 				}		
 			break;
 
@@ -327,8 +466,8 @@ var plugin = {};
 						}
 
 					} catch(err) {
-	       				Player.MessageFrom("Error", err.message);
-						Player.MessageFrom("Description", err.description);
+	       				P.MessageFrom("Error", err.message);
+						P.MessageFrom("Description", err.description);
 	       			}
 
 	       			Server.BroadcastNotice("World cleansed!");
@@ -348,8 +487,6 @@ var plugin = {};
 				//		
 				//	}
 				//}
-				
-				
 			break;
 
 			case "listall":
@@ -409,7 +546,7 @@ var plugin = {};
 										bits["partCount"] = 1;
 									list[smId] = bits;
 
-									Player.Message("added " + smId + " - ");
+									P.Message("added " + smId + " - ");
 									
 								} else {
 									list[smId]["partCount"]++;
@@ -425,11 +562,11 @@ var plugin = {};
 								//		EachEntity.Destroy();
 								//	}
 								//	
-								//	//Player.Message(EachEntity.Name);
+								//	//P.Message(EachEntity.Name);
 								//} catch(err){
-//
+								//
 								//}
-//
+								//
 							}
 						}
 
@@ -438,8 +575,8 @@ var plugin = {};
 	       				Plugin.Log("output", data);
 
 					} catch(err) {
-	       				Player.MessageFrom("Error", err.message);
-						Player.MessageFrom("Description", err.description);
+	       				P.MessageFrom("Error", err.message);
+						P.MessageFrom("Description", err.description);
 	       			}
 
 	       			
@@ -461,8 +598,6 @@ var plugin = {};
 				//		
 				//	}
 				//}
-				
-				
 			break;
 
 			case "entities":
@@ -480,61 +615,46 @@ var plugin = {};
 			break;
 
 			case "morning":
-                if(Player.Admin){
+                if(P.Admin){
                 	
                 }
        		break;
 
        		case "lt":
 
-       			Player.Message("Listing traps:");
+       			P.Message("Listing traps:");
        			var trapsTable = Datastore.Keys("BZtraps");
        			for (var x in trapsTable){
        				if(Datastore.Get("BZtraps", x+"_owner") != undefined){
-       					Player.Message("Trigger: " + x);
-	       				Player.Message("Target: " + Datastore.Get("BZtraps", x) );
-	       				Player.Message("Owner: " + Datastore.Get("BZtraps", x+"_owner"));
-	       				Player.Message("Type: " + Datastore.Get("BZtraps", x+"_type"));
-	       				Player.Message("-------------------------------------------------");
+       					P.Message("Trigger: " + x);
+	       				P.Message("Target: " + Datastore.Get("BZtraps", x) );
+	       				P.Message("Owner: " + Datastore.Get("BZtraps", x+"_owner"));
+	       				P.Message("Type: " + Datastore.Get("BZtraps", x+"_type"));
+	       				P.Message("-------------------------------------------------");
 	       				Server.Save();
        				}
 	       				
        			}
-
        		break;
 
        		case "flushdatastore":
 
-       			if(!Player.Admin){
-       				Player.Message("You need to be an admin!");
+       			if(!P.Admin){
+       				P.Message("You need to be an admin!");
        			}
 
-       			Player.Message("Flushing DataStore!");
-       			Player.Message("BZtraps table...");
+       			P.Message("Flushing DataStore!");
+       			P.Message("BZtraps table...");
 
        			Datastore.Flush("BZtraps");
-
-
        		break;
 
        		case "epoch":
        			var epoch = Plugin.GetTimestamp();
-       			Player.MessageFrom("epoch", epoch);
+       			P.MessageFrom("epoch", epoch);
        		break;
 
        		case "md5":
-       			var string = "password";
-       			try{
-       				var md5string = hex_md5("one");
-       				Player.MessageFrom("md5", md5string);
-       				var md5string = hex_md5("two");
-       				Player.MessageFrom("md5", md5string);
-       				var md5string = hex_md5("three");
-       				Player.MessageFrom("md5", md5string);
-       			} catch(err) {
-       				Player.MessageFrom("Error", err.message);
-					Player.MessageFrom("Description", err.description);
-       			}
        			
        		break;
 
@@ -548,7 +668,7 @@ var plugin = {};
 
 	       		for (var x in players){
 					
-					var location = loc2web(x);
+					var location = BZT.core.loc2web(x);
 					var lastLoc = DataStore.Get(x.SteamID, "BZloc");
 					if(lastLoc != undefined && location == lastLoc){
 						online = online - 1;
@@ -576,6 +696,7 @@ var plugin = {};
 	    }
 	}
 
+// Callbacks:
 
 	function replaceFloorCallback(params){
 		var owner = params.Get(4);
@@ -603,233 +724,8 @@ var plugin = {};
 			Server.Broadcast(err.ToString());
 		}
 		Plugin.KillTimer("replaceFloor");
-
 	}
 
-	function BZTreminderCallback(params){
-	}
-
-
-	function giveTestKit(Player){
-
-		var Inv = Player.Inventory;
-
-		Player.Inventory.DropAll();
-
-		Player.Inventory.AddItemTo("Sleeping Bag", 0, 1);
-		Player.Inventory.AddItemTo("Arrow", 6, 10);
-		Player.Inventory.AddItemTo("Arrow", 12, 10);
-		Player.Inventory.AddItemTo("Arrow", 18, 10);
-		Player.Inventory.AddItemTo("556 Ammo", 19, 250);
-		placeandcheckweapon(Player, "M4", 20);
-		placeandcheckweapon(Player, "Bolt Action Rifle", 21);
-		Player.Inventory.AddItemTo("Explosive Charge", 22, 5);
-		Player.Inventory.AddItemTo("Small Rations", 23, 30);
-		Player.Inventory.AddItemTo("Hunting Bow", 24, 1);
-		Player.Inventory.AddItemTo("9mm Ammo", 25, 250);
-		Player.Inventory.AddItemTo("9mm Ammo", 26, 250);
-		Player.Inventory.AddItemTo("Shotgun Shells", 27, 250);
-		Player.Inventory.AddItemTo("Supply Signal", 28, 1);
-		Player.Inventory.AddItemTo("Large Medkit", 29, 5);
-		
-		// belt items
-		Player.Inventory.AddItemTo("Hatchet", 30, 1);
-		placeandcheckweapon(Player, "P250", 31, "belt");
-		placeandcheckweapon(Player, "MP5A4", 32, "belt");
-		placeandcheckweapon(Player, "Shotgun", 33, "belt");
-		Player.Inventory.AddItemTo("F1 Grenade", 34, 5);
-		Player.Inventory.AddItemTo("Large Medkit", 35, 5);
-
-		// armor
-		Player.Inventory.AddItemTo("Kevlar Helmet", 36, 1);
-		Player.Inventory.AddItemTo("Kevlar Vest", 37, 1);
-		Player.Inventory.AddItemTo("Kevlar Pants", 38, 1);
-		Player.Inventory.AddItemTo("Kevlar Boots", 39, 1);
-
-		Player.MessageFrom("Test tool", "Woo! You got a test kit!");
-	}
-
-	function giveMods(Player){
-		Player.Inventory.AddItem("Holo sight");
-		Player.Inventory.AddItem("Silencer");
-		Player.Inventory.AddItem("Flashlight Mod");
-		Player.Inventory.AddItem("Laser Sight");
-	}
-
-	function giveWB(Player){
-		Player.Inventory.AddItem("Wood Foundation", 250);
-		Player.Inventory.AddItem("Wood Pillar", 250);
-		Player.Inventory.AddItem("Wood Wall", 250);
-		Player.Inventory.AddItem("Wood Window", 250);
-		Player.Inventory.AddItem("Wood Doorway", 250);
-		Player.Inventory.AddItem("Wood Ceiling", 250);
-		Player.Inventory.AddItem("Wood Stairs", 250);
-		Player.Inventory.AddItem("Wood Ramp", 250);
-	}
-
-	function giveCheat(Player){
-		Player.Inventory.AddItem("Wood Foundation BP", 1);
-		Player.Inventory.AddItem("Wood Pillar BP", 1);
-		Player.Inventory.AddItem("Wood Wall BP", 1);
-
-		Player.Inventory.AddItem("Wood Window BP", 1);
-		Player.Inventory.AddItem("Wood Doorway BP", 1);
-		Player.Inventory.AddItem("Wood Ceiling BP", 1);
-
-		Player.Inventory.AddItem("Wood Stairs BP", 1);
-		Player.Inventory.AddItem("Wood Ramp BP", 1);
-		Player.Inventory.AddItem("Wood Planks Blueprint", 1);
-
-		Player.Inventory.AddItem("Metal Window Bars Blueprint", 1);
-		Player.Inventory.AddItem("Metal Door Blueprint", 1);
-		Player.Inventory.AddItem("Sleeping Bag Blueprint", 1);
-
-		Player.Inventory.AddItem("Camp Fire Blueprint", 1);
-		Player.Inventory.AddItem("Large Wood Storage Blueprint", 1);
-		Player.Inventory.AddItem("Hunting Bow Blueprint", 1);
-
-		Player.Inventory.AddItem("Wood Gate Blueprint", 1);
-		Player.Inventory.AddItem("Wood Gateway Blueprint", 1);
-		Player.Inventory.AddItem("Spike Wall Blueprint", 1);
-
-		Player.Inventory.AddItem("Pipe Shotgun Blueprint", 1);
-		Player.Inventory.AddItem("HandCannon Blueprint", 1);
-		Player.Inventory.AddItem("Handmade Shell", 250);
-
-		Player.Inventory.AddItem("Small Stash", 10);
-		Player.Inventory.AddItem("Wood Shelter", 2);
-		Player.Inventory.AddItem("Large Wood Storage", 2);
-		Player.Inventory.AddItem("Wooden Door", 2);
-
-	}
-
-	function giveDoors(Player){
-		Player.Inventory.AddItem("Metal Door", 250);
-	}
-
-	function placeandcheckweapon(Player, name, slot, group, count){
-		try{
-			Player.Inventory.AddItemTo(name, slot, 1);
-
-			if(group == undefined){
-				var group = "item";
-			}
-
-			if(count == undefined){
-				var count = 1;
-			} else {
-				count++;
-			}
-
-			switch(group){
-
-				case "item":
-					var item = Player.Inventory.Items[slot];
-				break;
-
-				case "belt":
-					var item = Player.Inventory.BarItems[slot - 30];
-				break;
-
-				case "armor":
-					var item = Player.Inventory.ArmorItems[slot];
-				break;
-
-			}
-			
-			var itemSlots = item.InventoryItem.freeModSlots;
-
-			//Player.Message(name + " try " + count);
-			if(name == "Bolt Action Rifle"){
-				var minslots = 4;
-			} else {
-				var minslots = 5;
-			}
-			if(itemSlots < minslots && count < 50){
-				Player.Inventory.RemoveItem(slot);
-				placeandcheckweapon(Player, name, slot, group, count);
-			}
-		} catch(err) {
-			Player.MessageFrom("Error", err.message);
-			Player.MessageFrom("Description", err.description);
-		}
-	}
-
-	function dump_inventory(Player){
-
-		var ignore = [];
-		ignore["idMain"] = 1;
-		ignore["character"] = 1;
-		ignore["controller"] = 1;
-		ignore["controllable"] = 1;
-		ignore["iface"] = 1;
-		ignore["inventory"] = 1;
-
-		var Inv = Player.Inventory;
-		
-		
-		var Main = Inv.Items;
-		for(var i in Main){
-			if(i.Slot != undefined && i.Slot >= 0){
-
-				Plugin.Log("Main", i.Name + " in slot " + i.Slot + " ------------------- ");
-				for (var x in i.InventoryItem) {
-				     var output_name = x;
-					 var output_value = i.InventoryItem[x];
-
-					 if(typeof(output_value) != "function" && ignore[output_name] != 1){
-					 	Plugin.Log("Main", output_name + " : " + output_value);
-					 }
-					 
-				}
-				Plugin.Log("Main", " ------------------- ");
-				Plugin.Log("Main", ". ");
-
-			}
-		}
-
-		var Armor = Inv.ArmorItems;
-		for(var i in Armor){
-			if(i.Slot != undefined && i.Slot >= 0){
-
-				Plugin.Log("Armor", i.Name + " in slot " + i.Slot + " ------------------- ");
-				for (var x in i.InventoryItem) {
-				     var output_name = x;
-					 var output_value = i.InventoryItem[x];
-
-					 if(typeof(output_value) != "function" && ignore[output_name] != 1){
-					 	Plugin.Log("Armor", output_name + " : " + output_value);
-					 }
-					 
-				}
-				Plugin.Log("Armor", " ------------------- ");
-				Plugin.Log("Armor", ". ");
-
-			}
-		}
-
-		var Belt = Inv.BarItems;
-		for(var i in Belt){
-			if(i.Slot != undefined && i.Slot >= 0){
-
-				Plugin.Log("Belt", i.Name + " in slot " + i.Slot + " ------------------- ");
-				for (var x in i.InventoryItem) {
-				     var output_name = x;
-					 var output_value = i.InventoryItem[x];
-
-					 if(typeof(output_value) != "function" && ignore[output_name] != 1){
-					 	Plugin.Log("Belt", output_name + " : " + output_value);
-					 }
-					 
-				}
-				Plugin.Log("Belt", " ------------------- ");
-				Plugin.Log("Belt", ". ");
-
-			}
-		}
-
-		
-	}
 
 	// bits to reference stuff later if needed: 
 

@@ -72,7 +72,7 @@
 	function On_PluginInit() { 
 
 		if(BZA.core.loaded == undefined){
-	        Util.ConsoleLog("Could not load " + BZA.name+ "! (Zero Core not loaded yet)", true);
+	        Util.ConsoleLog("Could not load " + BZA.name+ "! (Core not loaded)", true);
 	        return false;
 	    }
 
@@ -89,7 +89,7 @@
 	        var iniData = {};
 	        	iniData["Config"] = Config;
 
-	        var conf = BZA.core.createConfig(iniData);
+	        var conf = BZA.core.createConfig(iniData, BZA.name);
 
 	    } 
 
