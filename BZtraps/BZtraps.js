@@ -61,11 +61,7 @@ var BZT = {
 	}
 }
 
-// TODO:
-/*
-	Move spike wall info to DS and remove with a single timer. Store epoch and check against it every time when there are one or more in DS.
-	Make all trap data a serialized dblock instead of using multiple entries in DS all the time. -- done
-*/
+
 
 // Hooks:
 
@@ -104,11 +100,7 @@ function On_PlayerSpawned(Player, spawnEvent) {
 	DataStore.Remove(he.Attacker.SteamID, "trapType");
 }
 
-function On_EntityHurt(he) {
-
-	//var OwnerSteamID = he.Entity.OwnerID.ToString();
-	//var OwnerName = DataStore.Get(OwnerSteamID, "BZName");
-	
+function On_EntityHurt(he) {	
 
     try{
 	    if(he.Attacker == he.Entity.Owner){
@@ -129,7 +121,6 @@ function On_EntityHurt(he) {
 		        		} else {
 		        			Inv.RemoveItem( "Low Quality Metal", BZT.core.confSetting("trap_price_lqm") );
 		        		}
-		        		// check to make sure the user has enough lqm
 		        	}
 
 		        	he.DamageAmount = 0;
@@ -142,7 +133,6 @@ function On_EntityHurt(he) {
         			DataStore.Add(BZT.DStable, String(pendingtrap.ToString()), iJSON.stringify(trapData));
 
 			    	
-			    	// remove trap setting status stuff
 					Datastore.Remove(he.Attacker.SteamID, "BZTpending");
 					DataStore.Remove(he.Attacker.SteamID, "BZpending");
 					DataStore.Remove(he.Attacker.SteamID, "trapType");
@@ -344,16 +334,12 @@ function On_Command(Player, cmd, args) {
 // Callbacks:
 
 function removeSpikesCallback(){
-	// check length of table first... TODO
 	var epoch = Plugin.GetTimestamp();
-	//Util.ConsoleLog("Timer run... " + epoch, true);
 	var spikeLife = BZT.core.confSetting("spike_timeout");
 	
 	if(Datastore.Count("spikeTraps") >= 1){
-		//Util.ConsoleLog("pass", true);
 		var spikes = Datastore.Keys("spikeTraps");
 		for (var s in spikes){
-			//Util.ConsoleLog("spike "+s, true);
 			if(parseInt(epoch) >= parseInt(s) + parseInt(spikeLife)){
 				
 				var spikedata = iJSON.parse(Datastore.Get("spikeTraps", s));
@@ -361,7 +347,6 @@ function removeSpikesCallback(){
 
 				for(var e in World.Entities){
 					if(e.X == spikedata.X && e.Y == spikedata.Y && e.Z == spikedata.Z){
-						//Util.ConsoleLog("should be removing if matchedd. " + spikedata.X + " : " + e.X, true);
 						Datastore.Remove("spikeTraps", s)
 						e.Destroy();
 						
@@ -372,7 +357,6 @@ function removeSpikesCallback(){
 				
 		}
 	} else {
-		//Util.ConsoleLog("fail", true);
 		Plugin.KillTimer("removeSpikes");
 	}
 
