@@ -1,9 +1,89 @@
 just saving for later: ░█
 
+friends
+unfriend
+
+--------------------
+
+help
+add core function for saving and displaying help stuff
+
+---------------------
+
+starter
+loadout
+Make kits. allow for special VIP kit and integrate website with it
+
+	---
+		create plugin that rewards people for inviting friends. if a person types /ref <name> the parson named gets a referral point and some sort of bonus
+	---
+----------------
+
+location
+just add location message when rust++ is removed. maybe change to loc and add the old map marked thing from the oxide plugin back in 
+
+--------------
+
+players
+better player list. Admins / VIPs / Players
+maybe add last on so ppl can type /last <name> and see when a person last visited (x hours ago, more than x hours ago)
+
+------------
+pm
+r
+simple pm and respond plugin
+
+-------------
+rules
+join message
+repeating message
+just a simple mesages thing
+
+--------------
+
+saveall
+will need a new way to do this after rust++ is removed. add it to the core.
+
+-----------------
+
+share
+unshare
+not really sure how/if I wanna do this but if I do it should include traps stuff
+
+----------------------
+
+remover
+incorporate with structure recycler. when remove tool is active they have a chance to get back the whole thing. (config)
+when not active and/or its someone elses stuff they get back a percentage of the resources it was created from
+
+-------------------
+goodgod plugin:
+
+	supposed to make admin more transparent
+	broadcast when admin turns on godmode
+	remind admin they have godmode on every 15 seconds
+	when admin has god mode on and is hit:
+		give ammo back to user
+		notify user that admin has god mode on
+		notify admin they have godmode on
+
+	when admin is hit while admin gear is equipped
+		give ammo back to user
+		notify admin they are invisible
+		notify player they hit an invisible admin
+
+	check for and repair injury on damage
+	check for and repair bleeding (if possible) on damage
+
+
+------------
+
+make something that updates website with plugins and verison numbers. (BZplugins)
 
 ------------
 
 /take X item : split off a specific amount of something into a fre einventory slot.
+/drop X item
 
 ------------
 
@@ -77,6 +157,15 @@ possibly do it for gathering as well so they gather faster or get more resources
 
 maybe the same system could be used for picking locks?
 
+----------------
+
+public bounty
+
+player can place a bounty on another player.
+bounty is removed from players inventory and public notice is posted
+when hit is complete the killer gets the reward instantly and server is notified
+players can check bounties with command
+
 --------------------------------------------------------------------
 
 lockpicking...
@@ -92,6 +181,8 @@ if using the proficiency system the secret number range is larger up to a 50% va
 -----------------------------------------------------------------------
 
 rewrite arrow system fo animal instances are tracked. you can only reclaim arrows that have actually been fired into that animal.
+
+maybe just have total arrows and try to decide how many to give from that total based on size of animal or something like that
 
 when a player is hit with arrows the datastore will track what time it happened... if it was within 10 minutes or so the arrow can be reclaimed when they die.
 

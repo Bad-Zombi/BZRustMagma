@@ -14,7 +14,7 @@ var BZT = {
 	},
 	trigger: function(Player, trapID) {
 
-		var trapData = iJSON.parse(Datastore.Get(BZT.DStable, trapID));
+		var trapData = iJSON.parse(Datastore.Get(this.DStable, trapID));
 		var trapowner = trapData.owner; 
 		var traptype = trapData.type; 
 
